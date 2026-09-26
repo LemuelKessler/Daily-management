@@ -1,0 +1,242 @@
+{
+  "name": "HubReport",
+  "type": "object",
+  "properties": {
+    "hub_id": {
+      "type": "string",
+      "description": "ID do hub"
+    },
+    "hub_name": {
+      "type": "string",
+      "description": "Nome do hub"
+    },
+    "regional": {
+      "type": "string",
+      "enum": [
+        "Regional 1",
+        "Regional 2",
+        "Regional 3",
+        "Regional 4",
+        "Regional ES 01"
+      ],
+      "description": "Regional"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do reporte"
+    },
+    "cycle": {
+      "type": "string",
+      "enum": [
+        "AM",
+        "PM"
+      ],
+      "description": "Ciclo (manh\u00e3 ou tarde)"
+    },
+    "sem_janela": {
+      "type": "boolean",
+      "description": "Ciclo sem janela de opera\u00e7\u00e3o",
+      "default": false
+    },
+    "forecast": {
+      "type": "number",
+      "description": "Volume previsto de chegada do ciclo"
+    },
+    "volume_recebido": {
+      "type": "number",
+      "description": "Volume Recebido"
+    },
+    "processado": {
+      "type": "number",
+      "description": "Processado"
+    },
+    "volume_expedido": {
+      "type": "number",
+      "description": "Volume Expedido"
+    },
+    "colaboradores": {
+      "type": "number",
+      "description": "Quantidade de colaboradores efetivos"
+    },
+    "diaristas": {
+      "type": "number",
+      "description": "Quantidade de diaristas"
+    },
+    "sinergia_recebida": {
+      "type": "number",
+      "description": "Quantidade de sinergia recebida"
+    },
+    "sinergia_enviada": {
+      "type": "integer",
+      "description": "Quantidade de colaboradores enviados para apoiar outras opera\u00e7\u00f5es (apenas informativo, n\u00e3o soma no HC)"
+    },
+    "absenteismo": {
+      "type": "number",
+      "description": "Quantidade de absente\u00edsmo"
+    },
+    "hc": {
+      "type": "number",
+      "description": "Head Count \u2014 calculado automaticamente: Colaboradores + Diaristas + Sinergia Recebida"
+    },
+    "phd_inbound": {
+      "type": "number",
+      "description": "PHD Inbound (calculado automaticamente: Volume Recebido / HC)"
+    },
+    "phd_outbound": {
+      "type": "number",
+      "description": "PHD Outbound (calculado automaticamente: Volume Expedido / HC)"
+    },
+    "no_show": {
+      "type": "number",
+      "description": "Quantidade de No Show (rotas que ficaram no piso)"
+    },
+    "total_rotas": {
+      "type": "number",
+      "description": "Total de Rotas do ciclo"
+    },
+    "rotas_fora_ops_clock": {
+      "type": "number",
+      "description": "Rotas carregadas fora da janela correta de expedi\u00e7\u00e3o"
+    },
+    "inicio_expedicao": {
+      "type": "string",
+      "description": "In\u00edcio da expedi\u00e7\u00e3o"
+    },
+    "fim_expedicao": {
+      "type": "string",
+      "description": "Fim da expedi\u00e7\u00e3o"
+    },
+    "ops_clock": {
+      "type": "number",
+      "description": "OpsClock \u2014 percentual de carros carregados dentro do hor\u00e1rio correto de expedi\u00e7\u00e3o"
+    },
+    "ponto_atencao": {
+      "type": "string",
+      "description": "Ponto de aten\u00e7\u00e3o / observa\u00e7\u00e3o"
+    },
+    "leftover": {
+      "type": "number",
+      "description": "Leftover"
+    },
+    "leftover_obs": {
+      "type": "string",
+      "description": "Observa\u00e7\u00e3o do Leftover (texto livre)"
+    },
+    "leftover_detalhamento": {
+      "type": "object",
+      "description": "Detalhamento do Leftover por motivo (quantidade de pacotes)",
+      "properties": {
+        "on_hold": {
+          "type": "integer",
+          "default": 0,
+          "description": "OnHold"
+        },
+        "avaria": {
+          "type": "integer",
+          "default": 0,
+          "description": "Avaria"
+        },
+        "outro_hub": {
+          "type": "integer",
+          "default": 0,
+          "description": "Outro HUB"
+        },
+        "misscan": {
+          "type": "integer",
+          "default": 0,
+          "description": "Misscan"
+        },
+        "volumoso_nao_roteirizado": {
+          "type": "integer",
+          "default": 0,
+          "description": "Volumoso n\u00e3o roteirizado"
+        },
+        "fora_de_rota": {
+          "type": "integer",
+          "default": 0,
+          "description": "Fora de rota"
+        },
+        "erro_etiquetagem": {
+          "type": "integer",
+          "default": 0,
+          "description": "Erro de etiquetagem"
+        },
+        "erro_sorting": {
+          "type": "integer",
+          "default": 0,
+          "description": "Erro de sorting"
+        },
+        "comercial": {
+          "type": "integer",
+          "default": 0,
+          "description": "Comercial"
+        },
+        "lh_atrasado": {
+          "type": "integer",
+          "default": 0,
+          "description": "LH atrasado"
+        },
+        "lh_cortado_capacidade": {
+          "type": "integer",
+          "default": 0,
+          "description": "LH cortado por incapacidade operacional"
+        },
+        "lh_nao_descarregado": {
+          "type": "integer",
+          "default": 0,
+          "description": "LH n\u00e3o descarregado"
+        },
+        "soc_transported": {
+          "type": "integer",
+          "default": 0,
+          "description": "SocTransported (Pacote sist\u00eamico sem f\u00edsico)"
+        },
+        "retirado_at_modal": {
+          "type": "integer",
+          "default": 0,
+          "description": "Retirado de AT (Modal incorreto)"
+        },
+        "retirado_at_capacidade": {
+          "type": "integer",
+          "default": 0,
+          "description": "Retirado de AT (Estouro de capacidade do ve\u00edculo)"
+        },
+        "erro_realocacao": {
+          "type": "integer",
+          "default": 0,
+          "description": "Erro de realoca\u00e7\u00e3o"
+        },
+        "backlog": {
+          "type": "integer",
+          "default": 0,
+          "description": "Backlog"
+        }
+      }
+    },
+    "missorting": {
+      "type": "integer",
+      "description": "Quantidade de erros operacionais identificados no ciclo (inteiro positivo)"
+    },
+    "bwt": {
+      "type": "number",
+      "description": "BWT (%) \u2014 Better Way Together, percentual de ades\u00e3o ao processo"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "em_andamento",
+        "concluido"
+      ],
+      "default": "em_andamento",
+      "description": "Status do reporte"
+    }
+  },
+  "required": [
+    "hub_id",
+    "hub_name",
+    "regional",
+    "date",
+    "cycle"
+  ]
+}

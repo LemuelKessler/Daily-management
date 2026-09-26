@@ -1,0 +1,76 @@
+{
+  "name": "HubTarget",
+  "type": "object",
+  "properties": {
+    "hub_id": {
+      "type": "string",
+      "description": "ID do hub"
+    },
+    "hub_name": {
+      "type": "string",
+      "description": "Nome do hub"
+    },
+    "regional": {
+      "type": "string",
+      "description": "Regional do hub"
+    },
+    "month": {
+      "type": "integer",
+      "description": "M\u00eas da meta (1-12)"
+    },
+    "year": {
+      "type": "integer",
+      "description": "Ano da meta (ex: 2026)"
+    },
+    "phd": {
+      "type": "number",
+      "description": "Meta de PHD Outbound"
+    },
+    "opsClockPct": {
+      "type": "number",
+      "description": "Meta de % Ops Clock"
+    },
+    "leftoverHub": {
+      "type": "number",
+      "description": "Meta de % Leftover Hub"
+    },
+    "missorting": {
+      "type": "number",
+      "description": "Meta de % Missorting"
+    },
+    "bwt": {
+      "type": "number",
+      "description": "Meta de BWT (%)"
+    },
+    "absPct": {
+      "type": "number",
+      "description": "Meta de % Absente\u00edsmo"
+    },
+    "dailyWorkers": {
+      "type": "number",
+      "description": "Meta de % Daily Workers"
+    },
+    "atsNoPiso": {
+      "type": "number",
+      "description": "Meta de % ATS no Piso"
+    },
+    "updated_date": {
+      "type": "string",
+      "description": "Data/hora da \u00faltima atualiza\u00e7\u00e3o do target"
+    },
+    "updated_by_email": {
+      "type": "string",
+      "description": "E-mail do usu\u00e1rio que realizou a \u00faltima atualiza\u00e7\u00e3o"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "E-mail do usu\u00e1rio que criou o target"
+    }
+  },
+  "required": [
+    "hub_id",
+    "hub_name",
+    "month",
+    "year"
+  ]
+}

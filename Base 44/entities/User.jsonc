@@ -1,0 +1,17 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "moderador",
+        "lider"
+      ],
+      "default": "lider",
+      "description": "Papel do usu\u00e1rio"
+    }
+  },
+  "required": []
+}
