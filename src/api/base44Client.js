@@ -31,7 +31,7 @@ export const base44 = {
             return data ? data[0] : payload;
           }
           
-          // Se o erro for de coluna não encontrada (PGRST204), remove a coluna problemática e tenta novamente
+          // Se houver qualquer coluna divergente (PGRST204), remove automaticamente e re-tenta
           if (error.code === 'PGRST204' && error.message) {
             const match = error.message.match(/Could not find the '([^']+)' column/);
             if (match && match[1]) {
@@ -42,7 +42,6 @@ export const base44 = {
             }
           }
           
-          // Caso seja outro erro, lança a exceção
           throw error;
         }
       },
