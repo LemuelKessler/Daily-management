@@ -60,10 +60,14 @@ export default function DailyManagementCards({ rows }) {
     .map(r => r.indicators?.absPct)
     .filter(v => v != null);
 
-  const absMed = absValues.length
+    const absMed = absValues.length
     ? absValues.reduce((a, b) => a + b, 0) / absValues.length
     : null;
 
+  const totalAbs = withData.reduce(
+    (s, r) => s + (Number(r.report?.absenteismo) || 0),
+    0
+  );
   const totalLeftover = withData.reduce(
     (s, r) => s + (Number(r.report?.leftover) || 0),
     0
@@ -129,6 +133,7 @@ export default function DailyManagementCards({ rows }) {
       color: 'bg-blue-50 text-blue-700 border-blue-200',
       iconBg: 'bg-blue-100',
       details: true,
+      type: 'volume',
     },
     {
       label: 'PHD Médio',
@@ -150,16 +155,18 @@ export default function DailyManagementCards({ rows }) {
       color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
       iconBg: 'bg-emerald-100',
     },
-    {
-      label: 'Absenteísmo Médio',
-      value:
-        absMed != null
-          ? `${absMed.toFixed(1).replace('.', ',')}%`
-          : '-',
-      icon: UserX,
-      color: 'bg-amber-50 text-amber-700 border-amber-200',
-      iconBg: 'bg-amber-100',
-    },
+        {
+          label: 'Absenteísmo Médio',
+  value:
+    absMed != null
+      ? `${absMed.toFixed(1).replace('.', ',')}%`
+      : '-',
+  icon: UserX,
+  color: 'bg-amber-50 text-amber-700 border-amber-200',
+  iconBg: 'bg-amber-100',
+  details: true,
+  type: 'abs',
+},
     {
       label: 'Total Leftover',
       value: totalLeftover.toLocaleString('pt-BR'),
@@ -213,7 +220,7 @@ export default function DailyManagementCards({ rows }) {
             </span>
 
             {/* Detalhamento específico do Volume */}
-            {c.details && (
+{c.type === 'volume' && (
               <div className="mt-1 pt-2 border-t border-blue-200/70 space-y-1">
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
                   <span className="opacity-70">
@@ -242,6 +249,20 @@ export default function DailyManagementCards({ rows }) {
 
                   <span className="font-bold">
                     {formatPercentage(volumeDeviationPct)}
+                  </span>
+                </div>
+              </div>
+            )}
+                        {/* Detalhamento específico do Absenteísmo */}
+                        {c.type === 'abs' && (
+              <div className="mt-1 pt-2 border-t border-amber-200/70">
+                <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+                  <span className="opacity-70">
+                    ABS Total
+                  </span>
+
+                  <span className="font-bold">
+                    {formatNumber(totalAbs)}
                   </span>
                 </div>
               </div>
