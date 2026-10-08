@@ -48,34 +48,40 @@ export default function LeftoverDetalhamentoSection({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {LEFTOVER_REASONS.map((reason) => (
-          <div key={reason.key} className={`rounded-lg border px-3 py-2 ${
+  {[...LEFTOVER_REASONS]
+    .sort((a, b) => {
+      if (a.category === b.category) return 0;
+      return a.category === 'inbound' ? -1 : 1;
+    })
+    .map((reason) => (
+      <div key={reason.key} className={`rounded-lg border px-3 py-2 ${
+        reason.category === 'inbound'
+          ? 'border-blue-200 bg-blue-50/40'
+          : 'border-orange-200 bg-orange-50/40'
+      }`}>
+        <div className="flex items-center justify-between gap-2">
+          <Label className="text-xs font-inter">{reason.label}</Label>
+          <span className={`text-[9px] font-inter font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
             reason.category === 'inbound'
-              ? 'border-blue-200 bg-blue-50/40'
-              : 'border-orange-200 bg-orange-50/40'
+              ? 'bg-blue-100 text-blue-700'
+              : 'bg-orange-100 text-orange-700'
           }`}>
-            <div className="flex items-center justify-between gap-2">
-              <Label className="text-xs font-inter">{reason.label}</Label>
-              <span className={`text-[9px] font-inter font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                reason.category === 'inbound'
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-orange-100 text-orange-700'
-              }`}>
-                {reason.category === 'inbound' ? 'Inbound' : 'Outbound'}
-              </span>
-            </div>
-            <Input
-              inputMode="numeric"
-              min="0"
-              value={det[reason.key] ?? 0}
-              onChange={(e) => handleReason(reason.key, e.target.value)}
-              placeholder="0"
-              disabled={disabled}
-              className="font-inter mt-1"
-            />
-          </div>
-        ))}
+            {reason.category === 'inbound' ? 'Inbound' : 'Outbound'}
+          </span>
+        </div>
+
+        <Input
+          inputMode="numeric"
+          min="0"
+          value={det[reason.key] ?? 0}
+          onChange={(e) => handleReason(reason.key, e.target.value)}
+          placeholder="0"
+          disabled={disabled}
+          className="font-inter mt-1"
+        />
       </div>
+    ))}
+</div>
 
       {/* Resumo Inbound / Outbound (tempo real) */}
       <div className="mt-4 grid grid-cols-3 gap-3">
