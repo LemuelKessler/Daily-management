@@ -46,7 +46,7 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
   const openEdit = () => {
     if (!editableReport) return;
     setEditForm({
-      forecast:               editableReport.forecast               ?? '',
+      forecast:            editableReport.forecast               ?? '',
       volume_recebido:        editableReport.volume_recebido        ?? '',
       processado:             editableReport.processado             ?? '',
       volume_expedido:        editableReport.volume_expedido        ?? '',
