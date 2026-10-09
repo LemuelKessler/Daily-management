@@ -130,7 +130,11 @@ function HubTargetRow({ hub, existingTarget, month, year }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hub-targets'] });
-      toast.success(`✅ Targets do ${hub.name} (${monthLabel(month, year)}) salvos!`);
+      toast.success(`Targets do ${hub.name} (${monthLabel(month, year)}) salvos!`);
+    },
+    onError: (error) => {
+      console.error('Erro ao salvar target:', error);
+      toast.error(`Erro ao salvar: ${error?.message || 'Erro desconhecido'}`);
     },
   });
 

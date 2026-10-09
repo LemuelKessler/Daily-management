@@ -307,14 +307,37 @@ create: async (item) => {
       },
 
       create: async (item) => {
-        const { data, error } = await supabase
-          .from('HubTarget')
-          .insert([item])
-          .select();
-
-        if (error) throw error;
-
-        return data ? data[0] : item;
+        const payload = { ...item };
+        let attempt = 0;
+      
+        while (attempt < 15) {
+          const { data, error } = await supabase
+            .from('HubTarget')
+            .insert([payload])
+            .select();
+      
+          if (!error) {
+            return data ? data[0] : payload;
+          }
+      
+          if (error.code === 'PGRST204' && error.message) {
+            const match = error.message.match(
+              /Could not find the '([^']+)' column/
+            );
+      
+            if (match && match[1]) {
+              delete payload[match[1]];
+              attempt++;
+              continue;
+            }
+          }
+      
+          throw error;
+        }
+      
+        throw new Error(
+          'Não foi possível criar o HubTarget após várias tentativas.'
+        );
       },
 
       update: async (id, item) => {
