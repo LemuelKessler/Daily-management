@@ -143,44 +143,64 @@ export const base44 = {
         return data || [];
       },
 
-      create: async (item) => {
-        let payload = { ...item };
-        let attempt = 0;
+      
+create: async (item) => {
+  const payload = { ...item };
 
-        while (attempt < 15) {
-          const { data, error } = await supabase
-            .from('HubReport')
-            .insert([payload])
-            .select();
+  // Busca o cadastro do HUB para preencher os dados
+  if (payload.hub_id !== undefined && payload.hub_id !== null) {
+    const { data: hub, error: hubError } = await supabase
+      .from('Hub')
+      .select('id, name, regional')
+      .eq('id', payload.hub_id)
+      .maybeSingle();
 
-          if (!error) {
-            return data ? data[0] : payload;
-          }
+    if (hubError) {
+      throw hubError;
+    }
 
-          // Se o Supabase informar que uma coluna não existe,
-          // remove a coluna e tenta novamente.
-          if (error.code === 'PGRST204' && error.message) {
-            const match = error.message.match(
-              /Could not find the '([^']+)' column/
-            );
+    if (hub) {
+      if (!payload.hub_name) {
+        payload.hub_name = hub.name;
+      }
 
-            if (match && match[1]) {
-              const missingCol = match[1];
+      if (!payload.regional) {
+        payload.regional = hub.regional;
+      }
+    }
+  }
 
-              delete payload[missingCol];
+  let attempt = 0;
 
-              attempt++;
-              continue;
-            }
-          }
+  while (attempt < 15) {
+    const { data, error } = await supabase
+      .from('HubReport')
+      .insert([payload])
+      .select();
 
-          throw error;
-        }
+    if (!error) {
+      return data ? data[0] : payload;
+    }
 
-        throw new Error(
-          'Não foi possível criar o HubReport após várias tentativas.'
-        );
-      },
+    if (error.code === 'PGRST204' && error.message) {
+      const match = error.message.match(
+        /Could not find the '([^']+)' column/
+      );
+
+      if (match && match[1]) {
+        delete payload[match[1]];
+        attempt++;
+        continue;
+      }
+    }
+
+    throw error;
+  }
+
+  throw new Error(
+    'Não foi possível criar o HubReport após várias tentativas.'
+  );
+},
 
       update: async (id, item) => {
         let payload = { ...item };

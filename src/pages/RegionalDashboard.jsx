@@ -159,11 +159,16 @@ export default function RegionalDashboard() {
     queryKey: ['reports', decodedRegional, selectedDate],
 
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('HubReport')
-        .select('*')
-        .eq('regional', decodedRegional)
-        .eq('date', selectedDate);
+      
+const { data, error } = await supabase
+.from('HubReport')
+.select('*')
+.eq('date', selectedDate);
+
+console.log('REGIONAL:', decodedRegional);
+console.log('DATA SELECIONADA:', selectedDate);
+console.log('DADOS HUBREPORT:', data);
+console.log('ERRO HUBREPORT:', error);
         console.log('REGIONAL:', decodedRegional);
 console.log('DATA SELECIONADA:', selectedDate);
 console.log('DADOS HUBREPORT:', data);
