@@ -98,14 +98,28 @@ export default function LeftoverAnalise() {
     return [...list].sort((a, b) => a.name.localeCompare(b.name));
   }, [hubs, selectedRegional]);
 
-  const filteredReports = useMemo(() => {
-    const hubIdSet = new Set(regionalHubs.map((h) => h.id));
-    return reports.filter((r) => {
-      if (!hubIdSet.has(r.hub_id)) return false;
-      if (selectedHub !== 'all' && r.hub_id !== selectedHub) return false;
-      return true;
-    });
-  }, [reports, regionalHubs, selectedHub]);
+  
+const filteredReports = useMemo(() => {
+  const hubIdSet = new Set(
+    regionalHubs.map((h) => String(h.id))
+  );
+
+  return reports.filter((r) => {
+    if (!hubIdSet.has(String(r.hub_id))) return false;
+
+    if (
+      selectedHub !== 'all' &&
+      String(r.hub_id) !== String(selectedHub)
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+}, [reports, regionalHubs, selectedHub]);
+
+  console.log('HUBs cadastrados:', hubs.map(h => ({ id: h.id, name: h.name })));
+console.log('Relatórios carregados:', reports.map(r => ({ hub_id: r.hub_id, date: r.date, leftover_detalhamento: r.leftover_detalhamento })));
 
   const aggregated = useMemo(() => {
     const grouped = {};
