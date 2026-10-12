@@ -22,6 +22,15 @@ const applyOrder = (query, orderBy) => {
 };
 
 export const base44 = {
+  auth: {
+    me: async () => {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) throw error;
+
+      return data.user;
+    },
+  },
   entities: {
 
     // ============================================================
@@ -332,6 +341,7 @@ create: async (item) => {
             }
           }
       
+          console.error('Erro real ao salvar HubTarget:', error);
           throw error;
         }
       

@@ -1,3 +1,4 @@
+import { supabase } from '../../lib/supabase';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -110,7 +111,7 @@ function HubTargetRow({ hub, existingTarget, month, year }) {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const me = await base44.auth.me();
+      const me = null;
       const now = new Date().toISOString();
       const data = {
         hub_id: hub.id, hub_name: hub.name, regional: hub.regional, month, year,
