@@ -116,9 +116,13 @@ export default function LeftoverAnalise() {
     const consolidatedPerHub = Object.values(grouped)
       .map((reps) => consolidatePeriodReports(reps))
       .filter(Boolean);
+      console.log('Relatórios filtrados:', filteredReports);
+      console.log('Relatórios consolidados:', consolidatedPerHub);
+      const detalhamento = sumDetalhamento(consolidatedPerHub);
 
-    const leftoverTotal = consolidatedPerHub.reduce((s, r) => s + (r.leftover || 0), 0);
-    const detalhamento = sumDetalhamento(consolidatedPerHub);
+      const leftoverTotal =
+        detalhamentoTotalInbound(detalhamento) +
+        detalhamentoTotalOutbound(detalhamento);
     const leftoverInbound = detalhamentoTotalInbound(detalhamento);
     const leftoverOutbound = detalhamentoTotalOutbound(detalhamento);
     const motivosCadastrados = LEFTOVER_REASONS.filter((r) => detalhamento[r.key] > 0).length;
