@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertTriangle, CheckCircle2, Clock, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
 import LeftoverCell from '@/components/ui/LeftoverCell';
 import TimeInput from '@/components/ui/TimeInput';
+import { detalhamentoTotal } from '@/lib/leftoverReasons';
 import ForecastCell from '@/components/ui/ForecastCell';
 import LastUpdateBadge from '@/components/ui/LastUpdateBadge';
 import HcTooltipCell from '@/components/ui/HcTooltipCell';
@@ -25,7 +26,10 @@ function getAlerts(report) {
   }
   if (report.phd_inbound > 5) alerts.push({ text: `PHD In: ${report.phd_inbound.toFixed(0)}`, type: 'danger' });
   if (report.phd_outbound > 5) alerts.push({ text: `PHD Out: ${report.phd_outbound.toFixed(0)}`, type: 'danger' });
-  if (report.leftover > 0) alerts.push({ text: `Leftover: ${report.leftover}`, type: 'warning' });
+  const leftoverTotal = detalhamentoTotal(report.leftover_detalhamento);
+if (leftoverTotal > 0) {
+  alerts.push({ text: `Leftover: ${leftoverTotal}`, type: 'warning' });
+}
   return alerts;
 }
 
@@ -34,6 +38,7 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
   const [editForm, setEditForm] = useState({});
 
   const alerts = getAlerts(report);
+  const leftoverTotal = detalhamentoTotal(report?.leftover_detalhamento);
   const statusIcon = report?.status === 'concluido'
     ? <CheckCircle2 className="w-4 h-4 text-green-600" />
     : <Clock className="w-4 h-4 text-amber-500" />;
@@ -191,7 +196,11 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
               <div className="text-center">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-inter font-medium">Leftover</p>
                 <p className={`text-lg font-inter font-bold mt-0.5 ${report.leftover > 0 ? 'text-destructive' : 'text-foreground'}`}>
-                  <LeftoverCell value={report.leftover ?? 0} obs={report.leftover_obs} warn={report.leftover > 0} />
+                <LeftoverCell
+  value={leftoverTotal}
+  obs={report.leftover_obs}
+  warn={leftoverTotal > 0}
+/>
                 </p>
               </div>
               <MetricItem label="No Show"   value={report.no_show ?? 0}   warn={report.no_show > 0} />

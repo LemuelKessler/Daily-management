@@ -1,4 +1,9 @@
 import React from 'react';
+import {
+  detalhamentoTotal,
+  detalhamentoTotalInbound,
+  detalhamentoTotalOutbound,
+} from '@/lib/leftoverReasons';
 import { UserX, Package, Activity, Clock, AlertTriangle, Users } from 'lucide-react';
 
 export default function DailyManagementCards({ rows }) {
@@ -69,9 +74,26 @@ export default function DailyManagementCards({ rows }) {
     0
   );
   const totalLeftover = withData.reduce(
-    (s, r) => s + (Number(r.report?.leftover) || 0),
+    (s, r) =>
+      s + detalhamentoTotal(r.report?.leftover_detalhamento),
     0
   );
+  const totalLeftoverInbound = withData.reduce(
+    (s, r) =>
+      s + detalhamentoTotalInbound(r.report?.leftover_detalhamento),
+    0
+  );
+  
+  const totalLeftoverOutbound = withData.reduce(
+    (s, r) =>
+      s + detalhamentoTotalOutbound(r.report?.leftover_detalhamento),
+    0
+  );
+  
+  const leftoverPct =
+    totalVolume > 0
+      ? (totalLeftover / totalVolume) * 100
+      : 0;
 
   // ============================================================
   // HUBs FORA DA META
@@ -171,6 +193,7 @@ export default function DailyManagementCards({ rows }) {
       label: 'Total Leftover',
       value: totalLeftover.toLocaleString('pt-BR'),
       icon: AlertTriangle,
+      type: 'leftover',
       color:
         totalLeftover > 0
           ? 'bg-red-50 text-red-700 border-red-200'
@@ -267,6 +290,42 @@ export default function DailyManagementCards({ rows }) {
                 </div>
               </div>
             )}
+            
+{/* Detalhamento específico do Leftover */}
+{c.type === 'leftover' && (
+  <div className="mt-1 pt-2 border-t border-red-200/70 space-y-1">
+    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+      <span className="opacity-70">
+        Leftover %
+      </span>
+
+      <span className="font-bold">
+        {leftoverPct.toFixed(1).replace('.', ',')}%
+      </span>
+    </div>
+
+    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+      <span className="opacity-70">
+        Inbound
+      </span>
+
+      <span className="font-bold">
+        {formatNumber(totalLeftoverInbound)}
+      </span>
+    </div>
+
+    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+      <span className="opacity-70">
+        Outbound
+      </span>
+
+      <span className="font-bold">
+        {formatNumber(totalLeftoverOutbound)}
+      </span>
+    </div>
+  </div>
+)}
+
           </div>
         );
       })}
