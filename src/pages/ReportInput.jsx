@@ -226,12 +226,16 @@ export default function ReportInput() {
                     <SelectValue placeholder={selectedRegional ? 'Selecione o hub' : 'Selecione a regional primeiro'} />
                   </SelectTrigger>
                   <SelectContent>
-                    {hubs
-                      .filter(h => h.regional === selectedRegional)
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map(h => (
-                        <SelectItem key={h.id} value={h.id}>{h.name} ({h.tipo || 'LM'})</SelectItem>
-                      ))}
+                    
+{hubs
+  .filter(h => String(h.regional || '').trim() === String(selectedRegional).trim())
+  .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+  .map(h => (
+    <SelectItem key={String(h.id)} value={String(h.id)}>
+      {h.name} ({h.tipo || 'LM'})
+    </SelectItem>
+  ))}
+
                   </SelectContent>
                 </Select>
               </div>
