@@ -121,37 +121,74 @@ const filteredReports = useMemo(() => {
   console.log('HUBs cadastrados:', hubs.map(h => ({ id: h.id, name: h.name })));
 console.log('Relatórios carregados:', reports.map(r => ({ hub_id: r.hub_id, date: r.date, leftover_detalhamento: r.leftover_detalhamento })));
 
-  const aggregated = useMemo(() => {
-    const grouped = {};
-    filteredReports.forEach((r) => {
-      if (!grouped[r.hub_id]) grouped[r.hub_id] = [];
-      grouped[r.hub_id].push(r);
-    });
-    const consolidatedPerHub = Object.values(grouped)
-      .map((reps) => consolidatePeriodReports(reps))
-      .filter(Boolean);
-      console.log('Relatórios filtrados:', filteredReports);
-      console.log('Relatórios consolidados:', consolidatedPerHub);
-      const detalhamento = sumDetalhamento(consolidatedPerHub);
+  
+const aggregated = useMemo(() => {
+  const grouped = {};
 
-      const leftoverTotal =
-        detalhamentoTotalInbound(detalhamento) +
-        detalhamentoTotalOutbound(detalhamento);
-    const leftoverInbound = detalhamentoTotalInbound(detalhamento);
-    const leftoverOutbound = detalhamentoTotalOutbound(detalhamento);
-    const motivosCadastrados = LEFTOVER_REASONS.filter((r) => detalhamento[r.key] > 0).length;
-    const ranking = detalhamentoRanking(detalhamento);
+  filteredReports.forEach((r) => {
+    if (!grouped[r.hub_id]) grouped[r.hub_id] = [];
+    grouped[r.hub_id].push(r);
+  });
 
-    return {
-      leftoverTotal,
-      leftoverInbound,
-      leftoverOutbound,
-      detalhamento,
-      motivosCadastrados,
-      ranking,
-      hubCount: consolidatedPerHub.length,
-    };
-  }, [filteredReports]);
+  const consolidatedPerHub = Object.entries(grouped)
+    .map(([hubId, reps]) => {
+      const report = consolidatePeriodReports(reps);
+      if (!report) return null;
+
+      const hub = hubs.find(
+        (h) => String(h.id) === String(hubId)
+      );
+
+      const detalhamentoHub = report.leftover_detalhamento || {};
+      const leftoverTotalHub =
+        detalhamentoTotalInbound(detalhamentoHub) +
+        detalhamentoTotalOutbound(detalhamentoHub);
+
+      const volumeRecebidoHub = Number(report.volume_recebido) || 0;
+
+      return {
+        hub_id: hubId,
+        hub_name: hub?.name || 'HUB não identificado',
+        leftover: leftoverTotalHub,
+        volume_recebido: volumeRecebidoHub,
+        leftover_percentual:
+          volumeRecebidoHub > 0
+            ? (leftoverTotalHub / volumeRecebidoHub) * 100
+            : 0,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.leftover_percentual - a.leftover_percentual);
+
+  const detalhamento = sumDetalhamento(
+    Object.entries(grouped)
+      .map(([, reps]) => consolidatePeriodReports(reps))
+      .filter(Boolean)
+  );
+
+  const leftoverTotal =
+    detalhamentoTotalInbound(detalhamento) +
+    detalhamentoTotalOutbound(detalhamento);
+
+  const leftoverInbound = detalhamentoTotalInbound(detalhamento);
+  const leftoverOutbound = detalhamentoTotalOutbound(detalhamento);
+  const motivosCadastrados = LEFTOVER_REASONS.filter(
+    (r) => detalhamento[r.key] > 0
+  ).length;
+  const ranking = detalhamentoRanking(detalhamento);
+
+  return {
+    leftoverTotal,
+    leftoverInbound,
+    leftoverOutbound,
+    detalhamento,
+    motivosCadastrados,
+    ranking,
+    hubCount: consolidatedPerHub.length,
+    hubRanking: consolidatedPerHub,
+  };
+}, [filteredReports, hubs]);
+
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ['leftover-reports'] });
@@ -288,6 +325,7 @@ console.log('Relatórios carregados:', reports.map(r => ({ hub_id: r.hub_id, dat
           motivosCadastrados={aggregated.motivosCadastrados}
           ranking={aggregated.ranking}
           hubCount={aggregated.hubCount}
+          hubRanking={aggregated.hubRanking}
         />
       )}
     </div>

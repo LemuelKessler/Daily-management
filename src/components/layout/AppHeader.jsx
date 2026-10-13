@@ -1,95 +1,170 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, ChevronRight, Plus, BarChart2, PieChart, Upload } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  Package,
+  ChevronRight,
+  Plus,
+  BarChart2,
+  PieChart,
+  Settings,
+  Building2,
+  Upload,
+  Download,
+} from 'lucide-react';
 import ExportSourceButton from '@/components/ExportSourceButton';
 
 export default function AppHeader() {
   const location = useLocation();
-  
+  const isAdmin = [
+    '/admin',
+    '/hubs',
+    '/import',
+  ].includes(location.pathname);
+
   const getBreadcrumbs = () => {
     const path = location.pathname;
-    const crumbs = path === '/' ? [] : [{ label: 'Início', path: '/' }];
-    
+    const crumbs = path === '/'
+      ? []
+      : [{ label: 'Início', path: '/' }];
+
     if (path.includes('/regional/')) {
-      const regional = decodeURIComponent(path.split('/regional/')[1]?.split('/')[0] || '');
-      crumbs.push({ label: regional, path: `/regional/${encodeURIComponent(regional)}` });
+      const regional = decodeURIComponent(
+        path.split('/regional/')[1]?.split('/')[0] || ''
+      );
+      crumbs.push({
+        label: regional,
+        path: `/regional/${encodeURIComponent(regional)}`,
+      });
     }
+
     if (path.includes('/hub/')) {
-      crumbs.push({ label: 'Detalhe Hub', path: path });
+      crumbs.push({ label: 'Detalhe Hub', path });
     }
+
     if (path === '/input') {
-      crumbs.push({ label: 'Input de Dados', path: '/input' });
+      crumbs.push({ label: 'Incluir Report', path: '/input' });
     }
+
     if (path === '/hubs') {
+      crumbs.push({ label: 'Administrativo', path: '/admin' });
       crumbs.push({ label: 'Gestão de Hubs', path: '/hubs' });
     }
-    if (path === '/daily') {
-      crumbs.push({ label: 'Daily Management', path: '/daily' });
-    }
-    if (path === '/leftover-analise') {
-      crumbs.push({ label: 'Análise do Leftover', path: '/leftover-analise' });
-    }
+
     if (path === '/import') {
+      crumbs.push({ label: 'Administrativo', path: '/admin' });
       crumbs.push({ label: 'Importar', path: '/import' });
     }
 
-    
+    if (path === '/admin') {
+      crumbs.push({ label: 'Administrativo', path: '/admin' });
+    }
+
+    if (path === '/daily') {
+      crumbs.push({ label: 'Daily Management', path: '/daily' });
+    }
+
+    if (path === '/leftover-analise') {
+      crumbs.push({
+        label: 'Análise do Leftover',
+        path: '/leftover-analise',
+      });
+    }
+
+    if (path === '/historico') {
+      crumbs.push({ label: 'Histórico', path: '/historico' });
+    }
+
+    if (path.includes('/regional/') && path.endsWith('/consolidado')) {
+      crumbs.push({
+        label: 'Consolidado Mensal',
+        path,
+      });
+    }
+
     return crumbs;
   };
 
   const crumbs = getBreadcrumbs();
 
+  const navClass = (path, highlighted = false) => {
+    const active = location.pathname === path;
+
+    return [
+      'flex items-center gap-1.5 text-xs font-inter font-semibold',
+      'px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap',
+      active
+        ? 'bg-white text-orange-600'
+        : highlighted
+          ? 'bg-orange-500/80 hover:bg-orange-500'
+          : 'bg-white/20 hover:bg-white/30',
+    ].join(' ');
+  };
+
   return (
     <header className="bg-primary text-primary-foreground sticky top-0 z-50 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <Link to="/" className="flex items-center gap-2.5 shrink-0">
           <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
             <Package className="w-5 h-5" />
           </div>
-          <span className="font-inter font-bold text-lg tracking-tight hidden sm:block">Shopee Report Operacional</span>
+          <span className="font-inter font-bold text-lg tracking-tight hidden sm:block">
+            Shopee Report Operacional
+          </span>
         </Link>
-        
-        <nav className="flex items-center gap-1.5 text-sm font-inter">
+
+        <nav className="flex items-center gap-1.5 text-sm font-inter min-w-0 overflow-x-auto">
           {crumbs.map((crumb, i) => (
-            <React.Fragment key={crumb.path}>
-              {i > 0 && <ChevronRight className="w-3.5 h-3.5 opacity-50" />}
+            <React.Fragment key={`${crumb.path}-${i}`}>
+              {i > 0 && (
+                <ChevronRight className="w-3.5 h-3.5 opacity-50 shrink-0" />
+              )}
               {i === crumbs.length - 1 ? (
-                <span className="font-medium opacity-90">{crumb.label}</span>
+                <span className="font-medium opacity-90 whitespace-nowrap">
+                  {crumb.label}
+                </span>
               ) : (
-                <Link to={crumb.path} className="opacity-70 hover:opacity-100 transition-opacity">
+                <Link
+                  to={crumb.path}
+                  className="opacity-70 hover:opacity-100 transition-opacity whitespace-nowrap"
+                >
                   {crumb.label}
                 </Link>
               )}
             </React.Fragment>
           ))}
         </nav>
-        
-        <div className="flex items-center gap-2">
-          {location.pathname !== '/' && (
-            <>
-              <Link to="/input" className="flex items-center gap-1.5 text-xs font-inter font-semibold bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors backdrop-blur-sm">
-                <Plus className="w-3.5 h-3.5" /> Incluir Report
-              </Link>
-              <Link to="/historico" className="text-xs font-inter font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors backdrop-blur-sm">
-                Histórico
-              </Link>
-              <Link to="/daily" className="flex items-center gap-1.5 text-xs font-inter font-semibold bg-orange-500/80 hover:bg-orange-500 px-3 py-1.5 rounded-lg transition-colors backdrop-blur-sm">
-                <BarChart2 className="w-3.5 h-3.5" /> Daily
-              </Link>
-              <Link to="/leftover-analise" className="flex items-center gap-1.5 text-xs font-inter font-semibold bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors backdrop-blur-sm">
-                <PieChart className="w-3.5 h-3.5" /> Leftover
-              </Link>
-              <Link to="/hubs" className="text-xs font-inter font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors backdrop-blur-sm">
-                Hubs
-              </Link>
-              <Link to="/import" className="flex items-center gap-1.5 text-xs font-inter font-semibold bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors backdrop-blur-sm">
-                <Upload className="w-3.5 h-3.5" /> Importar
-              </Link>
-              <ExportSourceButton />
-            </>
-          )}
-        </div>
+
+        {location.pathname !== '/' && (
+          <div className="flex items-center gap-2 shrink-0">
+            <Link to="/input" className={navClass('/input')}>
+              <Plus className="w-3.5 h-3.5" />
+              Incluir Report
+            </Link>
+
+            <Link to="/historico" className={navClass('/historico')}>
+              Histórico
+            </Link>
+
+            <Link to="/daily" className={navClass('/daily', true)}>
+              <BarChart2 className="w-3.5 h-3.5" />
+              Daily
+            </Link>
+
+            <Link to="/leftover-analise" className={navClass('/leftover-analise')}>
+              <PieChart className="w-3.5 h-3.5" />
+              Leftover
+            </Link>
+
+            <Link
+              to="/admin"
+              className={navClass('/admin', isAdmin)}
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Administrativo
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );
