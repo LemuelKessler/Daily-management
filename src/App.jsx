@@ -17,6 +17,7 @@ import HistoricoReports from '@/pages/HistoricoReports';
 import DailyManagement from '@/pages/DailyManagement';
 import LeftoverAnalise from '@/pages/LeftoverAnalise';
 import ImportReport from '@/pages/ImportReport';
+import AdminArea from '@/pages/AdminArea';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -55,10 +56,11 @@ const AuthenticatedApp = () => {
       <Route path="/import" element={<ImportReport />} />
         <Route path="/input" element={<ReportInput />} />
         <Route path="/hubs" element={<HubManagement />} />
+        <Route path="/admin" element={<AdminArea />} />
       </Route>
       <Route path="/lideres" element={<LiderArea />} />
       <Route path="*" element={<PageNotFound />} />
-    </Routes>
+ </Routes>   
   );
 };
 
