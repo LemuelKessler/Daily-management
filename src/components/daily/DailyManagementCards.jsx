@@ -60,7 +60,11 @@ export default function DailyManagementCards({ rows }) {
   const opsMed = opsValues.length
     ? opsValues.reduce((a, b) => a + b, 0) / opsValues.length
     : null;
-
+    const totalRotasForaOpsClock = withData.reduce(
+      (total, r) =>
+        total + (Number(r.report?.rotas_fora_ops_clock) || 0),
+      0
+    );
   const absValues = withData
     .map(r => r.indicators?.absPct)
     .filter(v => v != null);
@@ -167,16 +171,20 @@ export default function DailyManagementCards({ rows }) {
       color: 'bg-violet-50 text-violet-700 border-violet-200',
       iconBg: 'bg-violet-100',
     },
-    {
-      label: 'Ops Clock Médio',
-      value:
-        opsMed != null
-          ? `${opsMed.toFixed(1).replace('.', ',')}%`
-          : '-',
-      icon: Clock,
-      color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      iconBg: 'bg-emerald-100',
-    },
+    
+{
+  label: 'Ops Clock Médio',
+  value:
+    opsMed != null
+      ? `${opsMed.toFixed(1).replace('.', ',')}%`
+      : '-',
+  icon: Clock,
+  color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  iconBg: 'bg-emerald-100',
+  details: true,
+  type: 'opsClock',
+},
+
         {
           label: 'Absenteísmo Médio',
   value:
@@ -276,6 +284,22 @@ export default function DailyManagementCards({ rows }) {
                 </div>
               </div>
             )}
+            
+{/* Detalhamento específico do Ops Clock */}
+{c.type === 'opsClock' && (
+  <div className="mt-1 pt-2 border-t border-emerald-200/70">
+    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+      <span className="opacity-70">
+        Rotas fora do Ops Clock
+      </span>
+
+      <span className="font-bold">
+        {formatNumber(totalRotasForaOpsClock)}
+      </span>
+    </div>
+  </div>
+)}
+
                         {/* Detalhamento específico do Absenteísmo */}
                         {c.type === 'abs' && (
               <div className="mt-1 pt-2 border-t border-amber-200/70">
