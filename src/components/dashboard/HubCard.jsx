@@ -74,6 +74,11 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
       fim_expedicao:          editableReport.fim_expedicao          ?? '',
       ponto_atencao:          editableReport.ponto_atencao          ?? '',
       leftover:               editableReport.leftover               ?? '',
+      leftover_detalhamento: {
+  ...emptyLeftoverDetalhamento(),
+  ...(editableReport.leftover_detalhamento || {}),
+},
+
       leftover_obs:           editableReport.leftover_obs           ?? '',
       missorting:             editableReport.missorting             ?? '',
       bwt:                    editableReport.bwt                    ?? '',
@@ -111,6 +116,7 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
       total_rotas:          tot_rotas,
       rotas_fora_ops_clock: rotas_fora,
       leftover:             Number(editForm.leftover) || 0,
+      leftover_detalhamento: editForm.leftover_detalhamento || emptyLeftoverDetalhamento(),
       ops_clock:            ops_clock_calc,
       missorting:           editForm.missorting !== '' ? parseInt(editForm.missorting) : null,
       bwt:                  editForm.bwt !== '' ? Number(editForm.bwt) : null,
@@ -343,10 +349,29 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
                 </p>
               </div>
             )}
-            <div>
-              <Label className="text-xs font-inter">Obs. Leftover</Label>
-              <Input value={editForm.leftover_obs} onChange={e => updateField('leftover_obs', e.target.value)} placeholder="Ex: LH atrasou..." />
-            </div>
+            
+<LeftoverDetalhamentoSection
+  detalhamento={editForm.leftover_detalhamento || emptyLeftoverDetalhamento()}
+  leftoverTotal={editForm.leftover}
+  onChange={(key, value) =>
+    setEditForm(prev => ({
+      ...prev,
+      leftover_detalhamento: {
+        ...(prev.leftover_detalhamento || emptyLeftoverDetalhamento()),
+        [key]: value,
+      },
+    }))
+  }
+/>
+<div>
+  <Label className="text-xs font-inter">Obs. Leftover</Label>
+  <Input
+    value={editForm.leftover_obs}
+    onChange={e => updateField('leftover_obs', e.target.value)}
+    placeholder="Ex: LH atrasou..."
+  />
+</div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-xs font-inter">Missorting <span className="text-muted-foreground font-normal">(qtd.)</span></Label>
