@@ -61,6 +61,7 @@ export function calcIndicators(report, hubReports) {
   const totalDiaristas   = hubReports.reduce((s, r) => s + (r.diaristas || 0), 0);
   const totalAbsenteismo = hubReports.reduce((s, r) => s + (r.absenteismo || 0), 0);
   const totalMissorting  = hubReports.reduce((s, r) => s + (r.missorting || 0), 0);
+  const totalVolProcessado = hubReports.reduce((s, r) => s + (r.processado || 0), 0);
   const totalRotasFora   = hubReports.reduce((s, r) => s + (r.rotas_fora_ops_clock || 0), 0);
 
   // % Leftover = Leftover (aba TOTAL, último ciclo válido) / Volume Recebido Total × 100
@@ -83,9 +84,9 @@ export function calcIndicators(report, hubReports) {
   const absPct = (totalHC + totalAbsenteismo) > 0
     ? (totalAbsenteismo / (totalHC + totalAbsenteismo)) * 100 : null;
 
-  // % Missorting = Missorting Total / Volume Recebido Total × 100
-  const missortingPct = totalVolRecebido > 0
-    ? (totalMissorting / totalVolRecebido) * 100 : null;
+// % Missorting = Missorting Total / Volume Processado Total × 100
+const missortingPct = totalVolProcessado > 0
+  ? (totalMissorting / totalVolProcessado) * 100 : null;
 
   const bwt = report.bwt ?? null;
   const hc = report.hc || 0;
