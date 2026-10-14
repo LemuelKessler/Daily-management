@@ -11,7 +11,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertTriangle, CheckCircle2, Clock, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
 import LeftoverCell from '@/components/ui/LeftoverCell';
 import TimeInput from '@/components/ui/TimeInput';
-import { detalhamentoTotal } from '@/lib/leftoverReasons';
+import {
+  detalhamentoTotal,
+  emptyLeftoverDetalhamento,
+} from '@/lib/leftoverReasons';
+import LeftoverDetalhamentoSection from '@/components/leftover/LeftoverDetalhamentoSection';
 import ForecastCell from '@/components/ui/ForecastCell';
 import LastUpdateBadge from '@/components/ui/LastUpdateBadge';
 import HcTooltipCell from '@/components/ui/HcTooltipCell';

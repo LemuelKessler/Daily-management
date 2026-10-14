@@ -543,11 +543,9 @@ console.log('ERRO HUBREPORT:', error);
 
                       allReportsForHub={reports.filter(
                         report =>
-                          report.hub_id === hub.id &&
-                          (
-                            cycle === 'TOTAL' ||
-                            report.cycle === cycle
-                          )
+                          String(report.hub_id) === String(hub.id) &&
+                          report.cycle === cycle &&
+                          cycle !== 'TOTAL'
                       )}
                     />
 
@@ -623,12 +621,11 @@ console.log('ERRO HUBREPORT:', error);
 
                       allReportsForHub={reports.filter(
                         report =>
-                          report.hub_id === hub.id &&
-                          (
-                            cycle === 'TOTAL' ||
-                            report.cycle === cycle
-                          )
+                          String(report.hub_id) === String(hub.id) &&
+                          report.cycle === cycle &&
+                          cycle !== 'TOTAL'
                       )}
+                      
                     />
 
                   ))}
