@@ -46,7 +46,10 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
   const hasData = !!report;
   const isSemJanela = report?.sem_janela && cycle !== 'TOTAL';
 
-  const editableReport = allReportsForHub.length > 0 ? allReportsForHub[allReportsForHub.length - 1] : null;
+  const editableReport =
+  cycle !== 'TOTAL' && allReportsForHub.length > 0
+    ? allReportsForHub.find(report => report.cycle === cycle) || null
+    : null;
 
   const openEdit = () => {
     if (!editableReport) return;
