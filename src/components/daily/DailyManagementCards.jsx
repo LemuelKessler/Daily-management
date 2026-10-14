@@ -211,19 +211,35 @@ export default function DailyManagementCards({ rows }) {
           ? 'bg-red-100'
           : 'bg-gray-100',
     },
-    {
-      label: 'HUBs Fora da Meta',
-      value: `${hubsForaMeta}/${lmRows.length}`,
-      icon: Users,
-      color:
-        hubsForaMeta > 0
-          ? 'bg-red-50 text-red-700 border-red-200'
-          : 'bg-green-50 text-green-700 border-green-200',
-      iconBg:
-        hubsForaMeta > 0
-          ? 'bg-red-100'
-          : 'bg-green-100',
-    },
+    
+{
+  label: 'Daily Workers',
+  value:
+    withData.reduce(
+      (total, r) => total + (Number(r.report?.diaristas) || 0),
+      0
+    ) >= 0 && withData.reduce(
+      (total, r) => total + (Number(r.report?.hc) || 0),
+      0
+    ) > 0
+      ? `${(
+          withData.reduce(
+            (total, r) => total + (Number(r.report?.diaristas) || 0),
+            0
+          ) /
+          withData.reduce(
+            (total, r) => total + (Number(r.report?.hc) || 0),
+            0
+          )
+        * 100).toFixed(1).replace('.', ',')}%`
+      : '-',
+  icon: Users,
+  color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  iconBg: 'bg-emerald-100',
+  details: true,
+  type: 'dailyWorkers',
+},
+
   ];
 
   return (
@@ -315,6 +331,25 @@ export default function DailyManagementCards({ rows }) {
               </div>
             )}
             
+{/* Detalhamento específico do Daily Workers */}
+{c.type === 'dailyWorkers' && (
+  <div className="mt-1 pt-2 border-t border-emerald-200/70">
+    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+      <span className="opacity-70">
+        Total de diaristas
+      </span>
+      <span className="font-bold">
+        {formatNumber(
+          withData.reduce(
+            (total, r) => total + (Number(r.report?.diaristas) || 0),
+            0
+          )
+        )}
+      </span>
+    </div>
+  </div>
+)}
+
 {/* Detalhamento específico do Leftover */}
 {c.type === 'leftover' && (
   <div className="mt-1 pt-2 border-t border-red-200/70 space-y-1">
