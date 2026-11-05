@@ -403,7 +403,7 @@ export default function DailyManagementCards({ rows = [] }) {
                   {c.type === 'movimentacao' && (
                     <div className="mt-1 pt-2 border-t border-sky-200/70 space-y-1">
                       <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-                        <span className="opacity-70">Base Inicial</span>
+                        <span className="opacity-70">HC Inicial</span>
                         <span className="font-bold">{formatNumber(hcInicialTotal)}</span>
                       </div>
                       <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
