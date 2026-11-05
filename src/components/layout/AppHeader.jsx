@@ -103,7 +103,7 @@ const [adminUnlocked, setAdminUnlocked] = useState(false);
   const checkAdminPassword = (e) => {
     e.preventDefault();
   
-    if (adminPassword === 'Shopee@2026') {
+    if (adminPassword === 'Shopee@123') {
       setAdminUnlocked(true);
       setShowAdminPassword(false);
       setAdminPassword('');
