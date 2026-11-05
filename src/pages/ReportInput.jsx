@@ -41,8 +41,6 @@ const defaultForm = {
   fim_expedicao: '',
   ops_clock: '',
   ponto_atencao: '',
-  leftover: '',
-  leftover_obs: '',
   leftover_detalhamento: emptyLeftoverDetalhamento(),
   missorting: '',
   bwt: '',
@@ -151,7 +149,8 @@ export default function ReportInput() {
         no_show:    isSemJanela ? 0 : (Number(data.no_show) || 0),
         total_rotas: tot_rotas,
         rotas_fora_ops_clock: rotas_fora,
-        leftover:    isSemJanela ? 0 : (Number(data.leftover) || 0),
+        leftover: 0,
+        leftover_obs: null,
         leftover_detalhamento: isSemJanela ? emptyLeftoverDetalhamento() : (data.leftover_detalhamento || emptyLeftoverDetalhamento()),
         ops_clock:   isSemJanela ? null : ops_clock_calc,
         missorting:  isSemJanela ? 0 : (parseInt(data.missorting) || 0),
@@ -192,7 +191,7 @@ export default function ReportInput() {
         forecast: '', volume_recebido: '', processado: '', volume_expedido: '',
         colaboradores: '', diaristas: '', sinergia_recebida: '', sinergia_enviada: '',
         contratados: '', desligamentos: '', ferias: '', absenteismo: '',
-        no_show: '', total_rotas: '', rotas_fora_ops_clock: '', leftover: '', ops_clock: '',
+        no_show: '', total_rotas: '', rotas_fora_ops_clock: '', ops_clock: '',
         leftover_detalhamento: emptyLeftoverDetalhamento(),
       } : {})
     }));
@@ -214,7 +213,7 @@ export default function ReportInput() {
             {/* Etapa 1: Regional e Hub */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label className="text-xs font-inter">1. Regional</Label>
+                <Label className="text-xs font-inter">Regional</Label>
                 <Select value={selectedRegional} onValueChange={v => { setSelectedRegional(v); updateField('hub_id', ''); }}>
                   <SelectTrigger><SelectValue placeholder="Selecione a regional" /></SelectTrigger>
                   <SelectContent>
@@ -223,7 +222,7 @@ export default function ReportInput() {
                 </Select>
               </div>
               <div>
-                <Label className="text-xs font-inter">2. Hub</Label>
+                <Label className="text-xs font-inter">Hub</Label>
                 <Select
                   value={form.hub_id}
                   onValueChange={v => updateField('hub_id', v)}
@@ -382,22 +381,10 @@ export default function ReportInput() {
               </div>
             )}
 
-            {/* Leftover */}
-            <div className={`grid grid-cols-2 gap-4 transition-opacity ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
-              <div>
-                <Label className="text-xs font-inter">Leftover</Label>
-                <NumericInput value={form.leftover} onChange={v => updateField('leftover', v)} disabled={disabled} />
-              </div>
-              <div className="col-span-1">
-                <Label className="text-xs font-inter">Obs. Leftover <span className="text-muted-foreground">(opcional)</span></Label>
-                <Input value={form.leftover_obs} onChange={e => updateField('leftover_obs', e.target.value)} placeholder='Ex: LH atrasou...' disabled={disabled} />
-              </div>
-            </div>
-
             {/* Detalhamento do Leftover por motivo */}
             <LeftoverDetalhamentoSection
               detalhamento={form.leftover_detalhamento}
-              leftoverTotal={form.leftover}
+              leftoverTotal={0}
               disabled={disabled}
               onChange={(key, value) => setForm(prev => ({
                 ...prev,
