@@ -31,9 +31,9 @@ function getAlerts(report) {
   if (report.phd_inbound > 5) alerts.push({ text: `PHD In: ${report.phd_inbound.toFixed(0)}`, type: 'danger' });
   if (report.phd_outbound > 5) alerts.push({ text: `PHD Out: ${report.phd_outbound.toFixed(0)}`, type: 'danger' });
   const leftoverTotal = detalhamentoTotal(report.leftover_detalhamento);
-if (leftoverTotal > 0) {
-  alerts.push({ text: `Leftover: ${leftoverTotal}`, type: 'warning' });
-}
+  if (leftoverTotal > 0) {
+    alerts.push({ text: `Leftover: ${leftoverTotal}`, type: 'warning' });
+  }
   return alerts;
 }
 
@@ -51,38 +51,40 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
   const isSemJanela = report?.sem_janela && cycle !== 'TOTAL';
 
   const editableReport =
-  cycle !== 'TOTAL' && allReportsForHub.length > 0
-    ? allReportsForHub.find(report => report.cycle === cycle) || null
-    : null;
+    cycle !== 'TOTAL' && allReportsForHub.length > 0
+      ? allReportsForHub.find(report => report.cycle === cycle) || null
+      : null;
 
   const openEdit = () => {
     if (!editableReport) return;
     setEditForm({
       forecast:            editableReport.forecast               ?? '',
-      volume_recebido:        editableReport.volume_recebido        ?? '',
-      processado:             editableReport.processado             ?? '',
-      volume_expedido:        editableReport.volume_expedido        ?? '',
-      colaboradores:          editableReport.colaboradores          ?? '',
-      diaristas:              editableReport.diaristas              ?? '',
-      sinergia_recebida:      editableReport.sinergia_recebida      ?? '',
-      sinergia_enviada:       editableReport.sinergia_enviada       ?? '',
-      absenteismo:            editableReport.absenteismo            ?? '',
-      no_show:                editableReport.no_show                ?? '',
-      total_rotas:            editableReport.total_rotas            ?? '',
-      rotas_fora_ops_clock:   editableReport.rotas_fora_ops_clock   ?? '',
-      inicio_expedicao:       editableReport.inicio_expedicao       ?? '',
-      fim_expedicao:          editableReport.fim_expedicao          ?? '',
-      ponto_atencao:          editableReport.ponto_atencao          ?? '',
-      leftover:               editableReport.leftover               ?? '',
+      volume_recebido:     editableReport.volume_recebido        ?? '',
+      processado:          editableReport.processado             ?? '',
+      volume_expedido:     editableReport.volume_expedido        ?? '',
+      colaboradores:       editableReport.colaboradores          ?? '',
+      diaristas:           editableReport.diaristas              ?? '',
+      sinergia_recebida:   editableReport.sinergia_recebida      ?? '',
+      sinergia_enviada:    editableReport.sinergia_enviada       ?? '',
+      contratados:         editableReport.contratados            ?? '',
+      desligamentos:       editableReport.desligamentos          ?? '',
+      ferias:              editableReport.ferias                 ?? '',
+      absenteismo:         editableReport.absenteismo            ?? '',
+      no_show:             editableReport.no_show                ?? '',
+      total_rotas:         editableReport.total_rotas            ?? '',
+      rotas_fora_ops_clock:editableReport.rotas_fora_ops_clock   ?? '',
+      inicio_expedicao:    editableReport.inicio_expedicao       ?? '',
+      fim_expedicao:       editableReport.fim_expedicao          ?? '',
+      ponto_atencao:       editableReport.ponto_atencao          ?? '',
+      leftover:            editableReport.leftover               ?? '',
       leftover_detalhamento: {
-  ...emptyLeftoverDetalhamento(),
-  ...(editableReport.leftover_detalhamento || {}),
-},
-
-      leftover_obs:           editableReport.leftover_obs           ?? '',
-      missorting:             editableReport.missorting             ?? '',
-      bwt:                    editableReport.bwt                    ?? '',
-      status:                 editableReport.status                 ?? 'em_andamento',
+        ...emptyLeftoverDetalhamento(),
+        ...(editableReport.leftover_detalhamento || {}),
+      },
+      leftover_obs:        editableReport.leftover_obs           ?? '',
+      missorting:          editableReport.missorting             ?? '',
+      bwt:                 editableReport.bwt                    ?? '',
+      status:              editableReport.status                 ?? 'em_andamento',
     });
     setEditOpen(true);
   };
@@ -98,6 +100,7 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
     const tot_rotas = Number(editForm.total_rotas) || 0;
     const rotas_fora = Number(editForm.rotas_fora_ops_clock) || 0;
     const ops_clock_calc = tot_rotas > 0 ? ((tot_rotas - rotas_fora) / tot_rotas) * 100 : null;
+
     onUpdate(editableReport.id, {
       ...editForm,
       forecast:             editForm.forecast !== '' ? Number(editForm.forecast) : null,
@@ -108,6 +111,9 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
       diaristas:            diar,
       sinergia_recebida:    siner,
       sinergia_enviada:     editForm.sinergia_enviada !== '' ? parseInt(editForm.sinergia_enviada) : null,
+      contratados:          Number(editForm.contratados) || 0,
+      desligamentos:        Number(editForm.desligamentos) || 0,
+      ferias:               Number(editForm.ferias) || 0,
       absenteismo:          Number(editForm.absenteismo) || 0,
       hc,
       phd_inbound:          hc > 0 ? vol_rec / hc : 0,
@@ -209,11 +215,11 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
               <div className="text-center">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-inter font-medium">Leftover</p>
                 <p className={`text-lg font-inter font-bold mt-0.5 ${report.leftover > 0 ? 'text-destructive' : 'text-foreground'}`}>
-                <LeftoverCell
-  value={leftoverTotal}
-  obs={report.leftover_obs}
-  warn={leftoverTotal > 0}
-/>
+                  <LeftoverCell
+                    value={leftoverTotal}
+                    obs={report.leftover_obs}
+                    warn={leftoverTotal > 0}
+                  />
                 </p>
               </div>
               <MetricItem label="No Show"   value={report.no_show ?? 0}   warn={report.no_show > 0} />
@@ -264,6 +270,7 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
                 <Input inputMode="numeric" value={editForm.volume_expedido} onChange={e => updateField('volume_expedido', e.target.value.replace(/[^0-9]/g, ''))} placeholder="0" />
               </div>
             </div>
+
             {/* Composição HC */}
             <div>
               <p className="text-xs font-inter font-semibold text-primary mb-2">Composição do HC</p>
@@ -285,6 +292,26 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
                   <Input inputMode="numeric" value={editForm.sinergia_enviada} onChange={e => updateField('sinergia_enviada', e.target.value.replace(/[^0-9]/g, ''))} placeholder="0" />
                 </div>
               </div>
+
+              {/* Movimentações do Dia */}
+              <div className="mt-3 pt-3 border-t border-slate-100">
+                <p className="text-xs font-inter font-semibold text-slate-700 mb-2">Movimentações do Dia</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <Label className="text-xs font-inter text-emerald-700 font-medium">Contratados</Label>
+                    <Input inputMode="numeric" value={editForm.contratados} onChange={e => updateField('contratados', e.target.value.replace(/[^0-9]/g, ''))} placeholder="0" />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-inter text-rose-700 font-medium">Desligamentos</Label>
+                    <Input inputMode="numeric" value={editForm.desligamentos} onChange={e => updateField('desligamentos', e.target.value.replace(/[^0-9]/g, ''))} placeholder="0" />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-inter text-amber-700 font-medium">Em Férias</Label>
+                    <Input inputMode="numeric" value={editForm.ferias} onChange={e => updateField('ferias', e.target.value.replace(/[^0-9]/g, ''))} placeholder="0" />
+                  </div>
+                </div>
+              </div>
+
               {(Number(editForm.colaboradores) + Number(editForm.diaristas) + Number(editForm.sinergia_recebida)) > 0 && (
                 <div className="mt-2 flex items-center gap-2 text-sm font-inter text-muted-foreground bg-muted/40 rounded-lg px-3 py-1.5">
                   <span>HC calculado:</span>
@@ -294,11 +321,13 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
                 </div>
               )}
             </div>
+
             {/* Absenteísmo */}
             <div>
               <Label className="text-xs font-inter">Absenteísmo</Label>
               <Input inputMode="numeric" value={editForm.absenteismo} onChange={e => updateField('absenteismo', e.target.value.replace(/[^0-9]/g, ''))} placeholder="0" />
             </div>
+
             {/* PHD preview */}
             {((Number(editForm.colaboradores) || 0) + (Number(editForm.diaristas) || 0) + (Number(editForm.sinergia_recebida) || 0)) > 0 && (
               <div className="grid grid-cols-2 gap-4 bg-primary/5 border border-primary/20 rounded-xl p-3">
@@ -350,27 +379,27 @@ export default function HubCard({ hub, report, regional, selectedDate, cycle, on
               </div>
             )}
             
-<LeftoverDetalhamentoSection
-  detalhamento={editForm.leftover_detalhamento || emptyLeftoverDetalhamento()}
-  leftoverTotal={editForm.leftover}
-  onChange={(key, value) =>
-    setEditForm(prev => ({
-      ...prev,
-      leftover_detalhamento: {
-        ...(prev.leftover_detalhamento || emptyLeftoverDetalhamento()),
-        [key]: value,
-      },
-    }))
-  }
-/>
-<div>
-  <Label className="text-xs font-inter">Obs. Leftover</Label>
-  <Input
-    value={editForm.leftover_obs}
-    onChange={e => updateField('leftover_obs', e.target.value)}
-    placeholder="Ex: LH atrasou..."
-  />
-</div>
+            <LeftoverDetalhamentoSection
+              detalhamento={editForm.leftover_detalhamento || emptyLeftoverDetalhamento()}
+              leftoverTotal={editForm.leftover}
+              onChange={(key, value) =>
+                setEditForm(prev => ({
+                  ...prev,
+                  leftover_detalhamento: {
+                    ...(prev.leftover_detalhamento || emptyLeftoverDetalhamento()),
+                    [key]: value,
+                  },
+                }))
+              }
+            />
+            <div>
+              <Label className="text-xs font-inter">Obs. Leftover</Label>
+              <Input
+                value={editForm.leftover_obs}
+                onChange={e => updateField('leftover_obs', e.target.value)}
+                placeholder="Ex: LH atrasou..."
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
