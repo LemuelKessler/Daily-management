@@ -84,9 +84,9 @@ export function calcIndicators(report, hubReports) {
   const absPct = (totalHC + totalAbsenteismo) > 0
     ? (totalAbsenteismo / (totalHC + totalAbsenteismo)) * 100 : null;
 
-// % Missorting = Missorting Total / Volume Processado Total × 100
-const missortingPct = totalVolProcessado > 0
-  ? (totalMissorting / totalVolProcessado) * 100 : null;
+  // % Missorting = Missorting Total / Volume Processado Total × 100
+  const missortingPct = totalVolProcessado > 0
+    ? (totalMissorting / totalVolProcessado) * 100 : null;
 
   const bwt = report.bwt ?? null;
   const hc = report.hc || 0;
@@ -185,6 +185,8 @@ export default function DailyManagement() {
   const [selectedWeek, setSelectedWeek] = useState(() => `W${getISOWeek(new Date())}`);
   // [] = todas as regionais (padrão)
   const [selectedRegionals, setSelectedRegionals] = useState([]);
+  // __ALL__ = todos os hubs (padrão)
+  const [selectedHub, setSelectedHub] = useState(ALL_OPTION);
   const [showTargets, setShowTargets] = useState(false);
   const queryClient = useQueryClient();
 
@@ -218,10 +220,25 @@ export default function DailyManagement() {
   const { targets } = useDailyTargets(null, effectiveFrom);
 
   // Filtra hubs pelas regionais ativas
-  const filteredHubs = useMemo(
-    () => hubs.filter(h => activeRegionals.includes(h.regional)),
+  const availableHubs = useMemo(
+    () => hubs
+      .filter(h => activeRegionals.includes(h.regional))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '')),
     [hubs, activeRegionals]
   );
+
+  // Reseta a seleção de HUB se o HUB selecionado não pertencer mais às regionais filtradas
+  useEffect(() => {
+    if (selectedHub !== ALL_OPTION && !availableHubs.some(h => String(h.id) === String(selectedHub))) {
+      setSelectedHub(ALL_OPTION);
+    }
+  }, [availableHubs, selectedHub]);
+
+  // Filtra os hubs ativos se houver seleção individual de HUB
+  const filteredHubs = useMemo(() => {
+    if (selectedHub === ALL_OPTION) return availableHubs;
+    return availableHubs.filter(h => String(h.id) === String(selectedHub));
+  }, [availableHubs, selectedHub]);
 
   // Consolidar reports por hub
   const consolidatedByHub = useMemo(() => {
@@ -282,6 +299,22 @@ export default function DailyManagement() {
             <RegionalMultiSelect selectedRegionals={selectedRegionals} onChange={setSelectedRegionals} />
           </div>
 
+          {/* Filtro de HUB */}
+          <div className="flex items-center gap-1.5">
+            <Label className="text-xs font-inter text-muted-foreground whitespace-nowrap">Hub:</Label>
+            <Select value={selectedHub} onValueChange={setSelectedHub}>
+              <SelectTrigger className="h-8 min-w-[8rem] text-xs"><SelectValue placeholder="Todos os Hubs" /></SelectTrigger>
+              <SelectContent className="max-h-56 overflow-y-auto">
+                <SelectItem value={ALL_OPTION} className="text-xs font-semibold">Todos os Hubs</SelectItem>
+                {availableHubs.map(h => (
+                  <SelectItem key={String(h.id)} value={String(h.id)} className="text-xs">
+                    {h.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Modo de filtro */}
           <div className="flex items-center gap-1.5">
             <Label className="text-xs font-inter text-muted-foreground whitespace-nowrap">Período:</Label>
@@ -340,7 +373,7 @@ export default function DailyManagement() {
       ) : rows.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
           <AlertTriangle className="w-8 h-8 mb-2 opacity-40" />
-          <p className="font-inter text-sm">Nenhum hub cadastrado para as regionais selecionadas</p>
+          <p className="font-inter text-sm">Nenhum hub encontrado para o filtro selecionado</p>
         </div>
       ) : (
         <DailyTable rows={rows} />
