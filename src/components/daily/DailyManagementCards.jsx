@@ -17,7 +17,7 @@ export default function DailyManagementCards({ rows }) {
   const withData = lmRows.filter(r => r.indicators != null);
 
   // ============================================================
-  // MOVIMENTAÇÃO DE PESSOAL (NOVOS CAMPOS)
+  // MOVIMENTAÇÃO DE PESSOAL (CONTRATADOS, DESLIGAMENTOS, FÉRIAS)
   // ============================================================
   const totalContratados = withData.reduce(
     (s, r) => s + (Number(r.report?.contratados) || 0),
@@ -26,6 +26,11 @@ export default function DailyManagementCards({ rows }) {
 
   const totalDesligamentos = withData.reduce(
     (s, r) => s + (Number(r.report?.desligamentos) || 0),
+    0
+  );
+
+  const totalFerias = withData.reduce(
+    (s, r) => s + (Number(r.report?.ferias) || 0),
     0
   );
 
@@ -156,7 +161,6 @@ export default function DailyManagementCards({ rows }) {
       icon: Package,
       color: 'bg-blue-50 text-blue-700 border-blue-200',
       iconBg: 'bg-blue-100',
-      details: true,
       type: 'volume',
     },
     {
@@ -178,7 +182,6 @@ export default function DailyManagementCards({ rows }) {
       icon: Clock,
       color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
       iconBg: 'bg-emerald-100',
-      details: true,
       type: 'opsClock',
     },
     {
@@ -190,16 +193,14 @@ export default function DailyManagementCards({ rows }) {
       icon: UserX,
       color: 'bg-amber-50 text-amber-700 border-amber-200',
       iconBg: 'bg-amber-100',
-      details: true,
       type: 'abs',
     },
     {
-      label: 'People',
+      label: 'Movimentação HC',
       value: formatDeviation(saldoMovimentacao),
       icon: UserPlus,
       color: 'bg-sky-50 text-sky-700 border-sky-200',
       iconBg: 'bg-sky-100',
-      details: true,
       type: 'movimentacao',
     },
     {
@@ -240,7 +241,6 @@ export default function DailyManagementCards({ rows }) {
       icon: Users,
       color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
       iconBg: 'bg-emerald-100',
-      details: true,
       type: 'dailyWorkers',
     },
   ];
@@ -269,7 +269,7 @@ export default function DailyManagementCards({ rows }) {
               {c.value}
             </span>
 
-            {/* Detalhamento específico do Volume */}
+            {/* Detalhamento do Volume */}
             {c.type === 'volume' && (
               <div className="mt-1 pt-2 border-t border-blue-200/70 space-y-1">
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
@@ -287,7 +287,7 @@ export default function DailyManagementCards({ rows }) {
               </div>
             )}
             
-            {/* Detalhamento específico do Ops Clock */}
+            {/* Detalhamento do Ops Clock */}
             {c.type === 'opsClock' && (
               <div className="mt-1 pt-2 border-t border-emerald-200/70">
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
@@ -297,7 +297,7 @@ export default function DailyManagementCards({ rows }) {
               </div>
             )}
 
-            {/* Detalhamento específico do Absenteísmo */}
+            {/* Detalhamento do Absenteísmo */}
             {c.type === 'abs' && (
               <div className="mt-1 pt-2 border-t border-amber-200/70">
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
@@ -307,7 +307,7 @@ export default function DailyManagementCards({ rows }) {
               </div>
             )}
 
-            {/* Detalhamento específico da Movimentação de HC (NOVO CARD) */}
+            {/* Detalhamento da Movimentação HC (CONTRATADOS, DESLIGAMENTOS E FÉRIAS) */}
             {c.type === 'movimentacao' && (
               <div className="mt-1 pt-2 border-t border-sky-200/70 space-y-1">
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
@@ -318,10 +318,14 @@ export default function DailyManagementCards({ rows }) {
                   <span className="opacity-70">Desligamentos</span>
                   <span className="font-bold text-rose-700">-{formatNumber(totalDesligamentos)}</span>
                 </div>
+                <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+                  <span className="opacity-70">Em Férias</span>
+                  <span className="font-bold text-amber-700">{formatNumber(totalFerias)}</span>
+                </div>
               </div>
             )}
             
-            {/* Detalhamento específico do Daily Workers */}
+            {/* Detalhamento do Daily Workers */}
             {c.type === 'dailyWorkers' && (
               <div className="mt-1 pt-2 border-t border-emerald-200/70">
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
@@ -338,7 +342,7 @@ export default function DailyManagementCards({ rows }) {
               </div>
             )}
 
-            {/* Detalhamento específico do Leftover */}
+            {/* Detalhamento do Leftover */}
             {c.type === 'leftover' && (
               <div className="mt-1 pt-2 border-t border-red-200/70 space-y-1">
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
