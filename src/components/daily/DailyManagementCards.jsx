@@ -12,15 +12,15 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-export default function DailyManagementCards({ rows }) {
+export default function DailyManagementCards({ rows = [] }) {
   // HUBs LM: tipo === 'LM' OU tipo não preenchido (padrão LM)
-  const isLM = r => !r.hub?.tipo || r.hub?.tipo === 'LM';
+  const isLM = r => !r?.hub?.tipo || r?.hub?.tipo === 'LM';
 
   // Todos os HUBs LM (com ou sem report)
-  const lmRows = rows.filter(isLM);
+  const lmRows = (rows || []).filter(isLM);
 
   // HUBs LM com indicadores calculados (têm report)
-  const withData = lmRows.filter(r => r.indicators != null);
+  const withData = lmRows.filter(r => r?.indicators != null);
 
   // ============================================================
   // FORMATAÇÃO AUXILIAR
@@ -46,22 +46,22 @@ export default function DailyManagementCards({ rows }) {
   
   // Base Inicial orçada / cadastrada nos HubTargets
   const hcInicialTotal = withData.reduce(
-    (s, r) => s + (Number(r.hubTargets?.hc_inicial) || 0),
+    (s, r) => s + (Number(r?.hubTargets?.hc_inicial) || 0),
     0
   );
 
   const totalContratados = withData.reduce(
-    (s, r) => s + (Number(r.report?.contratados) || 0),
+    (s, r) => s + (Number(r?.report?.contratados) || 0),
     0
   );
 
   const totalDesligamentos = withData.reduce(
-    (s, r) => s + (Number(r.report?.desligamentos) || 0),
+    (s, r) => s + (Number(r?.report?.desligamentos) || 0),
     0
   );
 
   const totalFerias = withData.reduce(
-    (s, r) => s + (Number(r.report?.ferias) || 0),
+    (s, r) => s + (Number(r?.report?.ferias) || 0),
     0
   );
 
@@ -73,86 +73,86 @@ export default function DailyManagementCards({ rows }) {
   // ============================================================
 
   // 1. VOLUME / FORECAST
-  const totalVolume = withData.reduce((s, r) => s + (Number(r.report?.volume_recebido) || 0), 0);
-  const totalForecast = withData.reduce((s, r) => s + (Number(r.report?.forecast) || 0), 0);
+  const totalVolume = withData.reduce((s, r) => s + (Number(r?.report?.volume_recebido) || 0), 0);
+  const totalForecast = withData.reduce((s, r) => s + (Number(r?.report?.forecast) || 0), 0);
   const volumeDeviation = totalVolume - totalForecast;
   const volumeDeviationPct = totalForecast > 0 ? (volumeDeviation / totalForecast) * 100 : null;
 
   const hubMaiorVolume = [...withData].sort(
-    (a, b) => (Number(b.report?.volume_recebido) || 0) - (Number(a.report?.volume_recebido) || 0)
+    (a, b) => (Number(b?.report?.volume_recebido) || 0) - (Number(a?.report?.volume_recebido) || 0)
   )[0];
 
   const hubsComDesvio = withData.map(r => {
-    const rec = Number(r.report?.volume_recebido) || 0;
-    const fore = Number(r.report?.forecast) || 0;
-    return { name: r.hub?.name || 'Hub', desvio: rec - fore };
+    const rec = Number(r?.report?.volume_recebido) || 0;
+    const fore = Number(r?.report?.forecast) || 0;
+    return { name: r?.hub?.name || 'Hub', desvio: rec - fore };
   });
 
   const hubMaiorDesvioPositivo = [...hubsComDesvio].sort((a, b) => b.desvio - a.desvio)[0];
   const hubMaiorDesvioNegativo = [...hubsComDesvio].sort((a, b) => a.desvio - b.desvio)[0];
 
   // 2. PHD
-  const phdValues = withData.map(r => r.indicators?.phd).filter(v => v != null && v > 0);
+  const phdValues = withData.map(r => r?.indicators?.phd).filter(v => v != null && v > 0);
   const phdMed = phdValues.length ? phdValues.reduce((a, b) => a + b, 0) / phdValues.length : null;
 
   // 3. OPS CLOCK
-  const opsValues = withData.map(r => r.indicators?.opsClockPct).filter(v => v != null);
+  const opsValues = withData.map(r => r?.indicators?.opsClockPct).filter(v => v != null);
   const opsMed = opsValues.length ? opsValues.reduce((a, b) => a + b, 0) / opsValues.length : null;
-  const totalRotasForaOpsClock = withData.reduce((total, r) => total + (Number(r.report?.rotas_fora_ops_clock) || 0), 0);
+  const totalRotasForaOpsClock = withData.reduce((total, r) => total + (Number(r?.report?.rotas_fora_ops_clock) || 0), 0);
 
   const hubMenorOpsClockPct = [...withData]
-    .filter(r => r.indicators?.opsClockPct != null)
+    .filter(r => r?.indicators?.opsClockPct != null)
     .sort((a, b) => a.indicators.opsClockPct - b.indicators.opsClockPct)[0];
 
   const hubMaiorVeiculosForaOps = [...withData].sort(
-    (a, b) => (Number(b.report?.rotas_fora_ops_clock) || 0) - (Number(a.report?.rotas_fora_ops_clock) || 0)
+    (a, b) => (Number(b?.report?.rotas_fora_ops_clock) || 0) - (Number(a?.report?.rotas_fora_ops_clock) || 0)
   )[0];
 
   // 4. ABSENTEÍSMO
-  const absValues = withData.map(r => r.indicators?.absPct).filter(v => v != null);
+  const absValues = withData.map(r => r?.indicators?.absPct).filter(v => v != null);
   const absMed = absValues.length ? absValues.reduce((a, b) => a + b, 0) / absValues.length : null;
-  const totalAbs = withData.reduce((s, r) => s + (Number(r.report?.absenteismo) || 0), 0);
+  const totalAbs = withData.reduce((s, r) => s + (Number(r?.report?.absenteismo) || 0), 0);
 
   const hubMaiorAbsPct = [...withData]
-    .filter(r => r.indicators?.absPct != null)
+    .filter(r => r?.indicators?.absPct != null)
     .sort((a, b) => b.indicators.absPct - a.indicators.absPct)[0];
 
   const hubMaiorAbsAbsoluto = [...withData].sort(
-    (a, b) => (Number(b.report?.absenteismo) || 0) - (Number(a.report?.absenteismo) || 0)
+    (a, b) => (Number(b?.report?.absenteismo) || 0) - (Number(a?.report?.absenteismo) || 0)
   )[0];
 
-  // 5. MOVIMENTAÇÃO DE PESSOAL (TOP 3 DESLIGAMENTOS)
+  // 5. MOVIMENTAÇÃO DE PESSOAL (TOP 3 DESLIGAMENTOS - PROTEGIDO CONTRA NULL)
   const top3Desligamentos = [...withData]
-    .filter(r => (Number(r.report?.desligamentos) || 0) > 0)
-    .sort((a, b) => (Number(b.report?.desligamentos) || 0) - (Number(a.report?.desligamentos) || 0))
+    .filter(r => (Number(r?.report?.desligamentos) || 0) > 0)
+    .sort((a, b) => (Number(b?.report?.desligamentos) || 0) - (Number(a?.report?.desligamentos) || 0))
     .slice(0, 3);
 
   // 6. LEFTOVER
-  const totalLeftover = withData.reduce((s, r) => s + detalhamentoTotal(r.report?.leftover_detalhamento), 0);
-  const totalLeftoverInbound = withData.reduce((s, r) => s + detalhamentoTotalInbound(r.report?.leftover_detalhamento), 0);
-  const totalLeftoverOutbound = withData.reduce((s, r) => s + detalhamentoTotalOutbound(r.report?.leftover_detalhamento), 0);
+  const totalLeftover = withData.reduce((s, r) => s + detalhamentoTotal(r?.report?.leftover_detalhamento), 0);
+  const totalLeftoverInbound = withData.reduce((s, r) => s + detalhamentoTotalInbound(r?.report?.leftover_detalhamento), 0);
+  const totalLeftoverOutbound = withData.reduce((s, r) => s + detalhamentoTotalOutbound(r?.report?.leftover_detalhamento), 0);
   const leftoverPct = totalVolume > 0 ? (totalLeftover / totalVolume) * 100 : 0;
 
   const top3LeftoverPct = [...withData]
-    .filter(r => r.indicators?.leftoverHub != null && r.indicators.leftoverHub > 0)
+    .filter(r => r?.indicators?.leftoverHub != null && r.indicators.leftoverHub > 0)
     .sort((a, b) => b.indicators.leftoverHub - a.indicators.leftoverHub)
     .slice(0, 3);
 
   // 7. DAILY WORKERS
-  const totalDiaristas = withData.reduce((total, r) => total + (Number(r.report?.diaristas) || 0), 0);
-  const totalHCAll = withData.reduce((total, r) => total + (Number(r.report?.hc) || 0), 0);
+  const totalDiaristas = withData.reduce((total, r) => total + (Number(r?.report?.diaristas) || 0), 0);
+  const totalHCAll = withData.reduce((total, r) => total + (Number(r?.report?.hc) || 0), 0);
   const dailyWorkersMed = totalHCAll > 0 ? (totalDiaristas / totalHCAll) * 100 : null;
 
   const hubMaiorDailyWorkersPct = [...withData]
-    .filter(r => r.indicators?.dailyWorkers != null)
+    .filter(r => r?.indicators?.dailyWorkers != null)
     .sort((a, b) => b.indicators.dailyWorkers - a.indicators.dailyWorkers)[0];
 
   const hubMaiorDailyWorkersAbsoluto = [...withData].sort(
-    (a, b) => (Number(b.report?.diaristas) || 0) - (Number(a.report?.diaristas) || 0)
+    (a, b) => (Number(b?.report?.diaristas) || 0) - (Number(a?.report?.diaristas) || 0)
   )[0];
 
   // ============================================================
-  // CARDS E SEUS POPOUPS
+  // CARDS E SEUS TOOLTIPS
   // ============================================================
   const cards = [
     {
@@ -168,7 +168,7 @@ export default function DailyManagementCards({ rows }) {
           <div>
             <span className="text-slate-400">Maior Volume:</span>{' '}
             <strong className="text-white">
-              {hubMaiorVolume ? `${hubMaiorVolume.hub.name} (${formatNumber(hubMaiorVolume.report?.volume_recebido)})` : '-'}
+              {hubMaiorVolume ? `${hubMaiorVolume.hub?.name || 'Hub'} (${formatNumber(hubMaiorVolume.report?.volume_recebido)})` : '-'}
             </strong>
           </div>
           <div>
@@ -216,14 +216,14 @@ export default function DailyManagementCards({ rows }) {
           <div>
             <span className="text-slate-400">Menor % Ops Clock:</span>{' '}
             <strong className="text-amber-400">
-              {hubMenorOpsClockPct ? `${hubMenorOpsClockPct.hub.name} (${hubMenorOpsClockPct.indicators.opsClockPct.toFixed(1)}%)` : '-'}
+              {hubMenorOpsClockPct ? `${hubMenorOpsClockPct.hub?.name || 'Hub'} (${hubMenorOpsClockPct.indicators?.opsClockPct?.toFixed(1)}%)` : '-'}
             </strong>
           </div>
           <div>
             <span className="text-slate-400">Mais veículos fora:</span>{' '}
             <strong className="text-rose-400">
               {hubMaiorVeiculosForaOps
-                ? `${hubMaiorVeiculosForaOps.hub.name} (${formatNumber(hubMaiorVeiculosForaOps.report?.rotas_fora_ops_clock)} rotas)`
+                ? `${hubMaiorVeiculosForaOps.hub?.name || 'Hub'} (${formatNumber(hubMaiorVeiculosForaOps.report?.rotas_fora_ops_clock)} rotas)`
                 : '-'}
             </strong>
           </div>
@@ -243,13 +243,13 @@ export default function DailyManagementCards({ rows }) {
           <div>
             <span className="text-slate-400">Maior % ABS:</span>{' '}
             <strong className="text-amber-400">
-              {hubMaiorAbsPct ? `${hubMaiorAbsPct.hub.name} (${hubMaiorAbsPct.indicators.absPct.toFixed(1)}%)` : '-'}
+              {hubMaiorAbsPct ? `${hubMaiorAbsPct.hub?.name || 'Hub'} (${hubMaiorAbsPct.indicators?.absPct?.toFixed(1)}%)` : '-'}
             </strong>
           </div>
           <div>
             <span className="text-slate-400">Maior ABS Absoluto:</span>{' '}
             <strong className="text-rose-400">
-              {hubMaiorAbsAbsoluto ? `${hubMaiorAbsAbsoluto.hub.name} (${formatNumber(hubMaiorAbsAbsoluto.report?.absenteismo)} pessoas)` : '-'}
+              {hubMaiorAbsAbsoluto ? `${hubMaiorAbsAbsoluto.hub?.name || 'Hub'} (${formatNumber(hubMaiorAbsAbsoluto.report?.absenteismo)} pessoas)` : '-'}
             </strong>
           </div>
         </div>
@@ -273,9 +273,9 @@ export default function DailyManagementCards({ rows }) {
             <span className="text-slate-400 font-medium block mb-1">Top 3 Desligamentos:</span>
             {top3Desligamentos.length > 0 ? (
               top3Desligamentos.map((r, index) => (
-                <div key={r.hub.id} className="flex justify-between items-center gap-3 text-rose-400 font-medium">
-                  <span className="text-slate-300">{index + 1}. {r.hub.name}</span>
-                  <strong>({formatNumber(r.report?.desligamentos)} deslig.)</strong>
+                <div key={r?.hub?.id || r?.id || index} className="flex justify-between items-center gap-3 text-rose-400 font-medium">
+                  <span className="text-slate-300">{index + 1}. {r?.hub?.name || 'Hub desconhecido'}</span>
+                  <strong>({formatNumber(r?.report?.desligamentos)} deslig.)</strong>
                 </div>
               ))
             ) : (
@@ -297,9 +297,9 @@ export default function DailyManagementCards({ rows }) {
           <p className="font-bold border-b border-slate-700 pb-1 text-slate-300">Top 3 Hubs com maior % Leftover</p>
           {top3LeftoverPct.length > 0 ? (
             top3LeftoverPct.map((r, index) => (
-              <div key={r.hub.id} className="flex justify-between gap-4">
-                <span className="text-slate-400">{index + 1}. {r.hub.name}</span>
-                <strong className="text-red-400">{r.indicators.leftoverHub.toFixed(1)}%</strong>
+              <div key={r?.hub?.id || r?.id || index} className="flex justify-between gap-4">
+                <span className="text-slate-400">{index + 1}. {r?.hub?.name || 'Hub'}</span>
+                <strong className="text-red-400">{r?.indicators?.leftoverHub?.toFixed(1) || 0}%</strong>
               </div>
             ))
           ) : (
@@ -321,13 +321,13 @@ export default function DailyManagementCards({ rows }) {
           <div>
             <span className="text-slate-400">Maior % Daily Workers:</span>{' '}
             <strong className="text-emerald-400">
-              {hubMaiorDailyWorkersPct ? `${hubMaiorDailyWorkersPct.hub.name} (${hubMaiorDailyWorkersPct.indicators.dailyWorkers.toFixed(1)}%)` : '-'}
+              {hubMaiorDailyWorkersPct ? `${hubMaiorDailyWorkersPct.hub?.name || 'Hub'} (${hubMaiorDailyWorkersPct.indicators?.dailyWorkers?.toFixed(1)}%)` : '-'}
             </strong>
           </div>
           <div>
             <span className="text-slate-400">Maior nº Absoluto:</span>{' '}
             <strong className="text-white">
-              {hubMaiorDailyWorkersAbsoluto ? `${hubMaiorDailyWorkersAbsoluto.hub.name} (${formatNumber(hubMaiorDailyWorkersAbsoluto.report?.diaristas)} diaristas)` : '-'}
+              {hubMaiorDailyWorkersAbsoluto ? `${hubMaiorDailyWorkersAbsoluto.hub?.name || 'Hub'} (${formatNumber(hubMaiorDailyWorkersAbsoluto.report?.diaristas)} diaristas)` : '-'}
             </strong>
           </div>
         </div>
