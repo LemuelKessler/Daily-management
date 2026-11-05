@@ -30,6 +30,8 @@ const defaultForm = {
   diaristas: '',
   sinergia_recebida: '',
   sinergia_enviada: '',
+  contratados: '',     // NOVO CAMPO
+  desligamentos: '',   // NOVO CAMPO
   absenteismo: '',
   no_show: '',
   total_rotas: '',
@@ -123,9 +125,11 @@ export default function ReportInput() {
       const vol_exp = isSemJanela ? 0 : (Number(data.volume_expedido) || 0);
       const tot_rotas = isSemJanela ? 0 : (Number(data.total_rotas) || 0);
       const rotas_fora = isSemJanela ? 0 : (Number(data.rotas_fora_ops_clock) || 0);
+      
       const ops_clock_calc = tot_rotas > 0
         ? ((tot_rotas - rotas_fora) / tot_rotas) * 100
         : null;
+        
       return base44.entities.HubReport.create({
         ...data,
         hub_name: hub?.name || '',
@@ -138,6 +142,8 @@ export default function ReportInput() {
         diaristas: diar,
         sinergia_recebida: siner,
         sinergia_enviada: isSemJanela ? null : (parseInt(data.sinergia_enviada) || null),
+        contratados: isSemJanela ? 0 : (parseInt(data.contratados) || 0), // NOVO CAMPO
+        desligamentos: isSemJanela ? 0 : (parseInt(data.desligamentos) || 0), // NOVO CAMPO
         absenteismo: isSemJanela ? 0 : (Number(data.absenteismo) || 0),
         hc,
         phd_inbound:  hc > 0 ? vol_rec / hc : 0,
@@ -184,7 +190,8 @@ export default function ReportInput() {
       sem_janela: !prev.sem_janela,
       ...((!prev.sem_janela) ? {
         forecast: '', volume_recebido: '', processado: '', volume_expedido: '',
-        colaboradores: '', diaristas: '', sinergia_recebida: '', absenteismo: '',
+        colaboradores: '', diaristas: '', sinergia_recebida: '', sinergia_enviada: '',
+        contratados: '', desligamentos: '', absenteismo: '', // RESET DOS NOVOS CAMPOS
         no_show: '', total_rotas: '', rotas_fora_ops_clock: '', leftover: '', ops_clock: '',
         leftover_detalhamento: emptyLeftoverDetalhamento(),
       } : {})
@@ -227,14 +234,14 @@ export default function ReportInput() {
                   </SelectTrigger>
                   <SelectContent>
                     
-{hubs
-  .filter(h => String(h.regional || '').trim() === String(selectedRegional).trim())
-  .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-  .map(h => (
-    <SelectItem key={String(h.id)} value={String(h.id)}>
-      {h.name} ({h.tipo || 'LM'})
-    </SelectItem>
-  ))}
+                    {hubs
+                      .filter(h => String(h.regional || '').trim() === String(selectedRegional).trim())
+                      .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+                      .map(h => (
+                        <SelectItem key={String(h.id)} value={String(h.id)}>
+                          {h.name} ({h.tipo || 'LM'})
+                        </SelectItem>
+                      ))}
 
                   </SelectContent>
                 </Select>
@@ -329,6 +336,21 @@ export default function ReportInput() {
                   <span className="font-bold text-primary text-base">{hcNum}</span>
                 </div>
               )}
+            </div>
+
+            {/* Movimentação de Pessoal */}
+            <div className={`transition-opacity ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
+              <p className="text-xs font-inter font-semibold text-primary mb-2 mt-2">Movimentação de Pessoal (Ciclo)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs font-inter">Contratados</Label>
+                  <IntegerInput value={form.contratados} onChange={v => updateField('contratados', v)} disabled={disabled} placeholder="0" />
+                </div>
+                <div>
+                  <Label className="text-xs font-inter">Desligamentos</Label>
+                  <IntegerInput value={form.desligamentos} onChange={v => updateField('desligamentos', v)} disabled={disabled} placeholder="0" />
+                </div>
+              </div>
             </div>
 
             {/* Absenteísmo */}
