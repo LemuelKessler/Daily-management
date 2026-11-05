@@ -9,11 +9,12 @@ import { Target, Save, Loader2, Plus, History, ChevronDown, ChevronUp, Trash2, C
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { createPortal } from 'react-dom';
 
 const TARGET_FIELDS = [
+  { key: 'hc_inicial',   label: 'HC Inicial',      placeholder: 'Ex: 100' },
   { key: 'phd',          label: 'PHD Outbound',    placeholder: 'Ex: 500' },
   { key: 'opsClockPct',  label: '% Ops Clock',     placeholder: 'Ex: 95'  },
   { key: 'leftoverHub',  label: '% Leftover',      placeholder: 'Ex: 2'   },
@@ -180,13 +181,13 @@ function HubTargetRow({ hub, existingTarget, month, year }) {
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
         {TARGET_FIELDS.map(f => (
           <div key={f.key}>
             <Label className="text-[10px] font-inter font-semibold text-slate-600">{f.label}</Label>
             <Input
               type="number"
-              step="0.01"
+              step={f.key === 'hc_inicial' ? '1' : '0.01'}
               value={form[f.key] || ''}
               onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
               placeholder={f.placeholder}
@@ -343,7 +344,7 @@ export default function TargetsModal({ regional, onClose, initialMonth, initialY
             <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-lg px-4 py-3">
               <div className="flex-1">
                 <p className="text-xs font-inter font-bold text-slate-700 mb-0.5">Período das metas</p>
-                <p className="text-[10px] text-muted-foreground font-inter">Selecione o mês/ano para cadastrar ou editar as metas. Meses anteriores são preservados.</p>
+                <p className="text-[10px] text-muted-foreground font-inter">Selecione o mês/ano para cadastrar ou editar as metas e o HC Inicial. Meses anteriores são preservados.</p>
               </div>
               <div className="flex items-center gap-2">
                 <Select
