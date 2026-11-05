@@ -4,7 +4,7 @@ import {
   detalhamentoTotalInbound,
   detalhamentoTotalOutbound,
 } from '@/lib/leftoverReasons';
-import { UserX, Package, Activity, Clock, AlertTriangle, Users } from 'lucide-react';
+import { UserX, Package, Activity, Clock, AlertTriangle, Users, UserPlus } from 'lucide-react';
 
 export default function DailyManagementCards({ rows }) {
   // HUBs LM: tipo === 'LM' OU tipo não preenchido (padrão LM)
@@ -15,6 +15,21 @@ export default function DailyManagementCards({ rows }) {
 
   // HUBs LM com indicadores calculados (têm report)
   const withData = lmRows.filter(r => r.indicators != null);
+
+  // ============================================================
+  // MOVIMENTAÇÃO DE PESSOAL (NOVOS CAMPOS)
+  // ============================================================
+  const totalContratados = withData.reduce(
+    (s, r) => s + (Number(r.report?.contratados) || 0),
+    0
+  );
+
+  const totalDesligamentos = withData.reduce(
+    (s, r) => s + (Number(r.report?.desligamentos) || 0),
+    0
+  );
+
+  const saldoMovimentacao = totalContratados - totalDesligamentos;
 
   // ============================================================
   // VOLUME / FORECAST
@@ -60,16 +75,17 @@ export default function DailyManagementCards({ rows }) {
   const opsMed = opsValues.length
     ? opsValues.reduce((a, b) => a + b, 0) / opsValues.length
     : null;
-    const totalRotasForaOpsClock = withData.reduce(
-      (total, r) =>
-        total + (Number(r.report?.rotas_fora_ops_clock) || 0),
-      0
-    );
+
+  const totalRotasForaOpsClock = withData.reduce(
+    (total, r) => total + (Number(r.report?.rotas_fora_ops_clock) || 0),
+    0
+  );
+
   const absValues = withData
     .map(r => r.indicators?.absPct)
     .filter(v => v != null);
 
-    const absMed = absValues.length
+  const absMed = absValues.length
     ? absValues.reduce((a, b) => a + b, 0) / absValues.length
     : null;
 
@@ -77,20 +93,19 @@ export default function DailyManagementCards({ rows }) {
     (s, r) => s + (Number(r.report?.absenteismo) || 0),
     0
   );
+
   const totalLeftover = withData.reduce(
-    (s, r) =>
-      s + detalhamentoTotal(r.report?.leftover_detalhamento),
+    (s, r) => s + detalhamentoTotal(r.report?.leftover_detalhamento),
     0
   );
+
   const totalLeftoverInbound = withData.reduce(
-    (s, r) =>
-      s + detalhamentoTotalInbound(r.report?.leftover_detalhamento),
+    (s, r) => s + detalhamentoTotalInbound(r.report?.leftover_detalhamento),
     0
   );
   
   const totalLeftoverOutbound = withData.reduce(
-    (s, r) =>
-      s + detalhamentoTotalOutbound(r.report?.leftover_detalhamento),
+    (s, r) => s + detalhamentoTotalOutbound(r.report?.leftover_detalhamento),
     0
   );
   
@@ -98,23 +113,6 @@ export default function DailyManagementCards({ rows }) {
     totalVolume > 0
       ? (totalLeftover / totalVolume) * 100
       : 0;
-
-  // ============================================================
-  // HUBs FORA DA META
-  // ============================================================
-
-  const hubsForaMeta = withData.filter(r => {
-    const { indicators: ind, hubTargets: t } = r;
-
-    if (!ind) return false;
-
-    return (
-      (ind.phd != null && ind.phd < (t.phd || 500)) ||
-      (ind.opsClockPct != null && ind.opsClockPct < (t.opsClockPct || 95)) ||
-      (ind.leftoverHub != null && ind.leftoverHub > (t.leftoverHub || 2)) ||
-      (ind.absPct != null && ind.absPct > (t.absPct || 5))
-    );
-  }).length;
 
   // ============================================================
   // FORMATAÇÃO
@@ -171,32 +169,39 @@ export default function DailyManagementCards({ rows }) {
       color: 'bg-violet-50 text-violet-700 border-violet-200',
       iconBg: 'bg-violet-100',
     },
-    
-{
-  label: 'Ops Clock Médio',
-  value:
-    opsMed != null
-      ? `${opsMed.toFixed(1).replace('.', ',')}%`
-      : '-',
-  icon: Clock,
-  color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  iconBg: 'bg-emerald-100',
-  details: true,
-  type: 'opsClock',
-},
-
-        {
-          label: 'Absenteísmo Médio',
-  value:
-    absMed != null
-      ? `${absMed.toFixed(1).replace('.', ',')}%`
-      : '-',
-  icon: UserX,
-  color: 'bg-amber-50 text-amber-700 border-amber-200',
-  iconBg: 'bg-amber-100',
-  details: true,
-  type: 'abs',
-},
+    {
+      label: 'Ops Clock Médio',
+      value:
+        opsMed != null
+          ? `${opsMed.toFixed(1).replace('.', ',')}%`
+          : '-',
+      icon: Clock,
+      color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      iconBg: 'bg-emerald-100',
+      details: true,
+      type: 'opsClock',
+    },
+    {
+      label: 'Absenteísmo Médio',
+      value:
+        absMed != null
+          ? `${absMed.toFixed(1).replace('.', ',')}%`
+          : '-',
+      icon: UserX,
+      color: 'bg-amber-50 text-amber-700 border-amber-200',
+      iconBg: 'bg-amber-100',
+      details: true,
+      type: 'abs',
+    },
+    {
+      label: 'People',
+      value: formatDeviation(saldoMovimentacao),
+      icon: UserPlus,
+      color: 'bg-sky-50 text-sky-700 border-sky-200',
+      iconBg: 'bg-sky-100',
+      details: true,
+      type: 'movimentacao',
+    },
     {
       label: 'Total Leftover',
       value: totalLeftover.toLocaleString('pt-BR'),
@@ -211,39 +216,37 @@ export default function DailyManagementCards({ rows }) {
           ? 'bg-red-100'
           : 'bg-gray-100',
     },
-    
-{
-  label: 'Daily Workers',
-  value:
-    withData.reduce(
-      (total, r) => total + (Number(r.report?.diaristas) || 0),
-      0
-    ) >= 0 && withData.reduce(
-      (total, r) => total + (Number(r.report?.hc) || 0),
-      0
-    ) > 0
-      ? `${(
-          withData.reduce(
-            (total, r) => total + (Number(r.report?.diaristas) || 0),
-            0
-          ) /
-          withData.reduce(
-            (total, r) => total + (Number(r.report?.hc) || 0),
-            0
-          )
-        * 100).toFixed(1).replace('.', ',')}%`
-      : '-',
-  icon: Users,
-  color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  iconBg: 'bg-emerald-100',
-  details: true,
-  type: 'dailyWorkers',
-},
-
+    {
+      label: 'Daily Workers',
+      value:
+        withData.reduce(
+          (total, r) => total + (Number(r.report?.diaristas) || 0),
+          0
+        ) >= 0 && withData.reduce(
+          (total, r) => total + (Number(r.report?.hc) || 0),
+          0
+        ) > 0
+          ? `${(
+              (withData.reduce(
+                (total, r) => total + (Number(r.report?.diaristas) || 0),
+                0
+              ) /
+              withData.reduce(
+                (total, r) => total + (Number(r.report?.hc) || 0),
+                0
+              )) * 100
+            ).toFixed(1).replace('.', ',')}%`
+          : '-',
+      icon: Users,
+      color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      iconBg: 'bg-emerald-100',
+      details: true,
+      type: 'dailyWorkers',
+    },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
       {cards.map((c, i) => {
         const Icon = c.icon;
 
@@ -267,124 +270,91 @@ export default function DailyManagementCards({ rows }) {
             </span>
 
             {/* Detalhamento específico do Volume */}
-{c.type === 'volume' && (
+            {c.type === 'volume' && (
               <div className="mt-1 pt-2 border-t border-blue-200/70 space-y-1">
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-                  <span className="opacity-70">
-                    Forecast
-                  </span>
-
-                  <span className="font-bold">
-                    {formatNumber(totalForecast)}
-                  </span>
+                  <span className="opacity-70">Forecast</span>
+                  <span className="font-bold">{formatNumber(totalForecast)}</span>
                 </div>
-
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-                  <span className="opacity-70">
-                    Desvio
-                  </span>
-
-                  <span className="font-bold">
-                    {formatDeviation(volumeDeviation)}
-                  </span>
+                  <span className="opacity-70">Desvio</span>
+                  <span className="font-bold">{formatDeviation(volumeDeviation)}</span>
                 </div>
-
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-                  <span className="opacity-70">
-                    Desvio %
-                  </span>
-
-                  <span className="font-bold">
-                    {formatPercentage(volumeDeviationPct)}
-                  </span>
+                  <span className="opacity-70">Desvio %</span>
+                  <span className="font-bold">{formatPercentage(volumeDeviationPct)}</span>
                 </div>
               </div>
             )}
             
-{/* Detalhamento específico do Ops Clock */}
-{c.type === 'opsClock' && (
-  <div className="mt-1 pt-2 border-t border-emerald-200/70">
-    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-      <span className="opacity-70">
-        Rotas fora do Ops Clock
-      </span>
+            {/* Detalhamento específico do Ops Clock */}
+            {c.type === 'opsClock' && (
+              <div className="mt-1 pt-2 border-t border-emerald-200/70">
+                <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+                  <span className="opacity-70">Rotas fora do Ops Clock</span>
+                  <span className="font-bold">{formatNumber(totalRotasForaOpsClock)}</span>
+                </div>
+              </div>
+            )}
 
-      <span className="font-bold">
-        {formatNumber(totalRotasForaOpsClock)}
-      </span>
-    </div>
-  </div>
-)}
-
-                        {/* Detalhamento específico do Absenteísmo */}
-                        {c.type === 'abs' && (
+            {/* Detalhamento específico do Absenteísmo */}
+            {c.type === 'abs' && (
               <div className="mt-1 pt-2 border-t border-amber-200/70">
                 <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-                  <span className="opacity-70">
-                    ABS Total
-                  </span>
+                  <span className="opacity-70">ABS Total</span>
+                  <span className="font-bold">{formatNumber(totalAbs)}</span>
+                </div>
+              </div>
+            )}
 
-                  <span className="font-bold">
-                    {formatNumber(totalAbs)}
-                  </span>
+            {/* Detalhamento específico da Movimentação de HC (NOVO CARD) */}
+            {c.type === 'movimentacao' && (
+              <div className="mt-1 pt-2 border-t border-sky-200/70 space-y-1">
+                <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+                  <span className="opacity-70">Contratados</span>
+                  <span className="font-bold text-emerald-700">+{formatNumber(totalContratados)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+                  <span className="opacity-70">Desligamentos</span>
+                  <span className="font-bold text-rose-700">-{formatNumber(totalDesligamentos)}</span>
                 </div>
               </div>
             )}
             
-{/* Detalhamento específico do Daily Workers */}
-{c.type === 'dailyWorkers' && (
-  <div className="mt-1 pt-2 border-t border-emerald-200/70">
-    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-      <span className="opacity-70">
-        Total de diaristas
-      </span>
-      <span className="font-bold">
-        {formatNumber(
-          withData.reduce(
-            (total, r) => total + (Number(r.report?.diaristas) || 0),
-            0
-          )
-        )}
-      </span>
-    </div>
-  </div>
-)}
+            {/* Detalhamento específico do Daily Workers */}
+            {c.type === 'dailyWorkers' && (
+              <div className="mt-1 pt-2 border-t border-emerald-200/70">
+                <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+                  <span className="opacity-70">Total de diaristas</span>
+                  <span className="font-bold">
+                    {formatNumber(
+                      withData.reduce(
+                        (total, r) => total + (Number(r.report?.diaristas) || 0),
+                        0
+                      )
+                    )}
+                  </span>
+                </div>
+              </div>
+            )}
 
-{/* Detalhamento específico do Leftover */}
-{c.type === 'leftover' && (
-  <div className="mt-1 pt-2 border-t border-red-200/70 space-y-1">
-    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-      <span className="opacity-70">
-        Leftover %
-      </span>
-
-      <span className="font-bold">
-        {leftoverPct.toFixed(1).replace('.', ',')}%
-      </span>
-    </div>
-
-    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-      <span className="opacity-70">
-        Inbound
-      </span>
-
-      <span className="font-bold">
-        {formatNumber(totalLeftoverInbound)}
-      </span>
-    </div>
-
-    <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
-      <span className="opacity-70">
-        Outbound
-      </span>
-
-      <span className="font-bold">
-        {formatNumber(totalLeftoverOutbound)}
-      </span>
-    </div>
-  </div>
-)}
-
+            {/* Detalhamento específico do Leftover */}
+            {c.type === 'leftover' && (
+              <div className="mt-1 pt-2 border-t border-red-200/70 space-y-1">
+                <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+                  <span className="opacity-70">Leftover %</span>
+                  <span className="font-bold">{leftoverPct.toFixed(1).replace('.', ',')}%</span>
+                </div>
+                <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+                  <span className="opacity-70">Inbound</span>
+                  <span className="font-bold">{formatNumber(totalLeftoverInbound)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2 text-[10px] font-inter">
+                  <span className="opacity-70">Outbound</span>
+                  <span className="font-bold">{formatNumber(totalLeftoverOutbound)}</span>
+                </div>
+              </div>
+            )}
           </div>
         );
       })}

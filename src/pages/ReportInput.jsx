@@ -30,8 +30,9 @@ const defaultForm = {
   diaristas: '',
   sinergia_recebida: '',
   sinergia_enviada: '',
-  contratados: '',     // NOVO CAMPO
-  desligamentos: '',   // NOVO CAMPO
+  contratados: '',
+  desligamentos: '',
+  ferias: '',
   absenteismo: '',
   no_show: '',
   total_rotas: '',
@@ -60,7 +61,6 @@ function NumericInput({ value, onChange, placeholder, disabled }) {
   );
 }
 
-// Apenas inteiros (sem vírgula, sem ponto)
 function IntegerInput({ value, onChange, placeholder, disabled }) {
   return (
     <Input
@@ -103,7 +103,6 @@ export default function ReportInput() {
     queryFn: () => base44.entities.HubReport.list('-date', 500),
   });
 
-  // HC calculado automaticamente: Colaboradores + Diaristas + Sinergia Recebida
   const colabNum = Number(form.colaboradores) || 0;
   const diaristasNum = Number(form.diaristas) || 0;
   const sinergiaNum = Number(form.sinergia_recebida) || 0;
@@ -142,8 +141,9 @@ export default function ReportInput() {
         diaristas: diar,
         sinergia_recebida: siner,
         sinergia_enviada: isSemJanela ? null : (parseInt(data.sinergia_enviada) || null),
-        contratados: isSemJanela ? 0 : (parseInt(data.contratados) || 0), // NOVO CAMPO
-        desligamentos: isSemJanela ? 0 : (parseInt(data.desligamentos) || 0), // NOVO CAMPO
+        contratados: isSemJanela ? 0 : (parseInt(data.contratados) || 0),
+        desligamentos: isSemJanela ? 0 : (parseInt(data.desligamentos) || 0),
+        ferias: isSemJanela ? 0 : (parseInt(data.ferias) || 0),
         absenteismo: isSemJanela ? 0 : (Number(data.absenteismo) || 0),
         hc,
         phd_inbound:  hc > 0 ? vol_rec / hc : 0,
@@ -191,7 +191,7 @@ export default function ReportInput() {
       ...((!prev.sem_janela) ? {
         forecast: '', volume_recebido: '', processado: '', volume_expedido: '',
         colaboradores: '', diaristas: '', sinergia_recebida: '', sinergia_enviada: '',
-        contratados: '', desligamentos: '', absenteismo: '', // RESET DOS NOVOS CAMPOS
+        contratados: '', desligamentos: '', ferias: '', absenteismo: '',
         no_show: '', total_rotas: '', rotas_fora_ops_clock: '', leftover: '', ops_clock: '',
         leftover_detalhamento: emptyLeftoverDetalhamento(),
       } : {})
@@ -211,7 +211,7 @@ export default function ReportInput() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Etapa 1: Regional */}
+            {/* Etapa 1: Regional e Hub */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-xs font-inter">1. Regional</Label>
@@ -233,7 +233,6 @@ export default function ReportInput() {
                     <SelectValue placeholder={selectedRegional ? 'Selecione o hub' : 'Selecione a regional primeiro'} />
                   </SelectTrigger>
                   <SelectContent>
-                    
                     {hubs
                       .filter(h => String(h.regional || '').trim() === String(selectedRegional).trim())
                       .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
@@ -242,7 +241,6 @@ export default function ReportInput() {
                           {h.name} ({h.tipo || 'LM'})
                         </SelectItem>
                       ))}
-
                   </SelectContent>
                 </Select>
               </div>
@@ -341,7 +339,7 @@ export default function ReportInput() {
             {/* Movimentação de Pessoal */}
             <div className={`transition-opacity ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
               <p className="text-xs font-inter font-semibold text-primary mb-2 mt-2">Movimentação de Pessoal (Ciclo)</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <Label className="text-xs font-inter">Contratados</Label>
                   <IntegerInput value={form.contratados} onChange={v => updateField('contratados', v)} disabled={disabled} placeholder="0" />
@@ -349,6 +347,10 @@ export default function ReportInput() {
                 <div>
                   <Label className="text-xs font-inter">Desligamentos</Label>
                   <IntegerInput value={form.desligamentos} onChange={v => updateField('desligamentos', v)} disabled={disabled} placeholder="0" />
+                </div>
+                <div>
+                  <Label className="text-xs font-inter">Férias</Label>
+                  <IntegerInput value={form.ferias} onChange={v => updateField('ferias', v)} disabled={disabled} placeholder="0" />
                 </div>
               </div>
             </div>
