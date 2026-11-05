@@ -121,10 +121,11 @@ export default function DailyManagementCards({ rows }) {
     (a, b) => (Number(b.report?.absenteismo) || 0) - (Number(a.report?.absenteismo) || 0)
   )[0];
 
-  // 5. MOVIMENTAÇÃO DE PESSOAL (DESTAQUE POPUP)
-  const hubMaiorDesligamentos = [...withData].sort(
-    (a, b) => (Number(b.report?.desligamentos) || 0) - (Number(a.report?.desligamentos) || 0)
-  )[0];
+  // 5. MOVIMENTAÇÃO DE PESSOAL (TOP 3 DESLIGAMENTOS)
+  const top3Desligamentos = [...withData]
+    .filter(r => (Number(r.report?.desligamentos) || 0) > 0)
+    .sort((a, b) => (Number(b.report?.desligamentos) || 0) - (Number(a.report?.desligamentos) || 0))
+    .slice(0, 3);
 
   // 6. LEFTOVER
   const totalLeftover = withData.reduce((s, r) => s + detalhamentoTotal(r.report?.leftover_detalhamento), 0);
@@ -262,19 +263,24 @@ export default function DailyManagementCards({ rows }) {
       iconBg: 'bg-sky-100',
       type: 'movimentacao',
       renderTooltip: () => (
-        <div className="space-y-1.5 text-xs font-inter">
+        <div className="space-y-1.5 text-xs font-inter min-w-[210px]">
           <p className="font-bold border-b border-slate-700 pb-1 text-slate-300">Movimentação & Posição de Pessoal</p>
           <div>
             <span className="text-slate-400">HC Base Inicial:</span>{' '}
             <strong className="text-white">{formatNumber(hcInicialTotal)} pessoas</strong>
           </div>
-          <div>
-            <span className="text-slate-400">Maior nº Desligamentos:</span>{' '}
-            <strong className="text-rose-400">
-              {hubMaiorDesligamentos
-                ? `${hubMaiorDesligamentos.hub.name} (${formatNumber(hubMaiorDesligamentos.report?.desligamentos)} desligamentos)`
-                : '-'}
-            </strong>
+          <div className="pt-1 border-t border-slate-800">
+            <span className="text-slate-400 font-medium block mb-1">Top 3 Desligamentos:</span>
+            {top3Desligamentos.length > 0 ? (
+              top3Desligamentos.map((r, index) => (
+                <div key={r.hub.id} className="flex justify-between items-center gap-3 text-rose-400 font-medium">
+                  <span className="text-slate-300">{index + 1}. {r.hub.name}</span>
+                  <strong>({formatNumber(r.report?.desligamentos)} deslig.)</strong>
+                </div>
+              ))
+            ) : (
+              <span className="text-slate-500 italic">Nenhum desligamento</span>
+            )}
           </div>
         </div>
       ),
